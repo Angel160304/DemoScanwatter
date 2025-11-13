@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScanWatter - Monitoreo Inteligente de Agua</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style3.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#2E7D32">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo">ScanWatter</div>
+  <ul class="nav-links">
+    <li><a href="#inicio">Inicio</a></li>
+    <li><a href="#funciona">Cómo Funciona</a></li>
+    <li><a href="#beneficios">Beneficios</a></li>
+    <li><a href="#monitoreo">Monitoreo</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="inicio" class="hero">
+  <div class="hero-text">
+    <h1>Controla el consumo de agua con ScanWatter</h1>
+    <p>ScanWatter es la solución definitiva para hogares, empresas y comunidades que desean monitorear, optimizar y reducir el consumo de agua. Obtén estadísticas precisas, alertas en tiempo real y reportes detallados desde cualquier dispositivo.</p>
+    <button class="btn" onclick="scrollToSection('funciona')">Descubre cómo funciona</button>
+  </div>
+
+  <!-- Logo separado y flotante -->
+  <div class="hero-logo-container">
+    <img src="img/logo_blanco.png" alt="Logo ScanWatter" class="hero-logo">
+  </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section id="funciona" class="section">
+  <h2>Cómo Funciona</h2>
+  <p class="section-text">ScanWatter combina sensores inteligentes con análisis de datos en la nube para ofrecer un monitoreo preciso y accesible. Nuestro sistema es fácil de instalar y permite conocer tu consumo de manera inmediata, detectando anomalías o fugas en tiempo real.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>Monitoreo en tiempo real</h3>
+      <p>Nuestros sensores envían información minuto a minuto a la plataforma, permitiéndote visualizar exactamente cuánta agua estás consumiendo, en qué horarios y en qué áreas.</p>
+    </div>
+    <div class="card">
+      <h3>Alertas inteligentes</h3>
+      <p>Recibe notificaciones automáticas si detectamos un consumo inusual, posibles fugas o desperdicios. Las alertas pueden ser enviadas vía correo electrónico, app móvil o SMS.</p>
+    </div>
+    <div class="card">
+      <h3>Reportes detallados</h3>
+      <p>Genera reportes diarios, semanales o mensuales con gráficos claros que permiten identificar patrones de consumo, oportunidades de ahorro y áreas de mejora.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFICIOS -->
+<section id="beneficios" class="section section-alt">
+  <h2>Beneficios de ScanWatter</h2>
+  <p class="section-text">Adoptar ScanWatter no solo mejora la eficiencia en el uso del agua, sino que también contribuye a la sostenibilidad y al ahorro económico. Con nuestra plataforma, obtendrás herramientas que hacen tu día a día más inteligente y responsable.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>Ahorrar Agua</h3>
+      <p>Detecta fugas y patrones de consumo excesivo, reduciendo el desperdicio y promoviendo un uso más consciente del recurso más valioso del planeta.</p>
+    </div>
+    <div class="card">
+      <h3>Control Total</h3>
+      <p>Monitorea tu consumo desde cualquier dispositivo conectado, ya sea un smartphone, tablet o computadora. Mantén un control total de tu agua sin esfuerzo.</p>
+    </div>
+    <div class="card">
+      <h3>Comparte Datos</h3>
+      <p>Comparte tus reportes y estadísticas con tu familia, colegas o administradores de edificios. Fomenta la transparencia y la colaboración para un consumo eficiente.</p>
+    </div>
+    <div class="card">
+      <h3>Alertas Personalizadas</h3>
+      <p>Configura notificaciones según tus necesidades. Desde límites de consumo hasta detección de fugas, nuestra plataforma se adapta a ti.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Monitoreo donde se usa canvas como lienzo y chart.js que es una libreria que dibuja graficas por ti-->
+<section id="monitoreo" class="section">
+  <h2>Monitoreo en Gráficas</h2>
+  <p class="section-text">Visualiza tu consumo de agua de manera dinámica y comprensible. Nuestras gráficas interactivas muestran la evolución diaria, semanal y mensual, permitiendo tomar decisiones más acertadas y optimizar el uso del recurso.</p>
+  <div class="chart-container">
+    <canvas id="lineChart" width="700" height="400"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="barChart" width="700" height="400"></canvas>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-column">
+      <h4>ScanWatter</h4>
+      <ul>
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#funciona">Cómo Funciona</a></li>
+        <li><a href="#beneficios">Beneficios</a></li>
+        <li><a href="#monitoreo">Monitoreo</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h4>Recursos</h4>
+      <ul>
+        <li><a href="#">Documentación</a></li>
+        <li><a href="#">Tutoriales</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="mailto:scanwatterutsc@gmail.com">Soporte Técnico</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h4>Información Relacionada</h4>
+      <ul>
+        <li><a href="#">Política de Privacidad</a></li>
+        <li><a href="#">Términos y Condiciones</a></li>
+        <li><a href="#">Seguridad y Cumplimiento</a></li>
+        <li><a href="#">Blog</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h4>Síguenos</h4>
+      <ul>
+        <li><a href="#">Twitter</a></li>
+        <li><a href="#">YouTube</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">Facebook</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>2025 © ScanWatter. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/script.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('✅ Service Worker registrado con éxito:', reg.scope))
+      .catch(err => console.error('❌ Error al registrar el Service Worker:', err));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+/* === FONDO ANIMADO Y TIPOGRAFÍA === */
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Poppins', sans-serif; /* Asegúrate de importar esta fuente en tu HTML */
+  /* Fondo con gradiente animado para un look dinámico y sutil */
+  background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #121212);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+/* === CONTENEDOR DEL FORMULARIO (EFECTO VIDRIO/GLASSMORPHISM) === */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 420px;
+  width: 90%; /* Mejor para responsividad en móviles */
+  padding: 30px;
+  border-radius: 20px;
+  position: relative;
+  /* Efecto de vidrio esmerilado para un look premium */
+  background-color: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Para Safari */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  color: #fff;
+}
+
+/* === TÍTULO CON DEGRADADO Y EFECTO DE BRILLO === */
+.title {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -1px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 35px;
+  margin-bottom: 10px;
+  /* Texto con degradado para un look más vibrante */
+  background: linear-gradient(90deg, #00bfff, #94d2bd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.title::before,
+.title::after {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  left: 0px;
+  background-color: #00bfff;
+}
+
+.title::after {
+  animation: pulse 1.5s linear infinite;
+}
+
+/* === MENSAJES Y ENLACES === */
+.message, 
+.signin {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.signin {
+  text-align: center;
+}
+
+.signin a {
+  color: #00bfff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.signin a:hover {
+  color: #94d2bd;
+  text-decoration: underline;
+}
+
+/* === CAMPOS DE TEXTO (INPUTS) CON FOCO MEJORADO === */
+.form label {
+  position: relative;
+}
+
+.input {
+  background-color: rgba(51, 51, 51, 0.7);
+  color: #fff;
+  width: 100%;
+  padding: 22px 10px 8px 12px;
+  outline: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-size: 16px;
+  box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  /* Efecto de brillo en el borde al hacer foco */
+  border-color: #00bfff;
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.5);
+}
+
+.form label span {
+  color: rgba(200, 200, 200, 0.5);
+  position: absolute;
+  left: 15px;
+  top: 15px;
+  font-size: 1em;
+  cursor: text;
+  transition: all 0.3s ease;
+  pointer-events: none; /* Permite hacer clic a través del span al input */
+}
+
+/* Mueve la etiqueta hacia arriba cuando el input tiene contenido o está en foco */
+.input:focus + span,
+.input:not(:placeholder-shown) + span {
+  color: #00bfff;
+  top: 4px;
+  font-size: 0.75em;
+  font-weight: 600;
+}
+
+/* === BOTÓN CON EFECTO 3D Y GRADIENTE === */
+.submit {
+  border: none;
+  outline: none;
+  padding: 14px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #0077b6, #00bfff);
+  box-shadow: 0 4px 15px rgba(0, 150, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 150, 255, 0.5);
+}
+
+.submit:active {
+  transform: translateY(-1px); /* Efecto de presionar */
+  box-shadow: 0 4px 15px rgba(0, 150, 255, 0.3);
+}
+
+/* === KEYFRAMES PARA ANIMACIONES === */
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse {
+  from { transform: scale(0.9); opacity: 1; }
+  to { transform: scale(1.8); opacity: 0; }
+}

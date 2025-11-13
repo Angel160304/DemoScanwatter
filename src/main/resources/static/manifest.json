@@ -1,0 +1,22 @@
+{
+  "name": "ScanWatter",
+  "short_name": "ScanWatter",
+  "description": "ScanWatter es la solución definitiva para hogares, empresas y comunidades que desean monitorear, optimizar y reducir el consumo de agua. Obtén estadísticas precisas, alertas en tiempo real y reportes detallados desde cualquier dispositivo.",
+  "start_url": "/login.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#675fddff",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/img/logo_blanco.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/logo_blanco.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
