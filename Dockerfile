@@ -1,5 +1,5 @@
 # Usamos una imagen oficial de Java 17 ligera
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jdk
 
 # Directorio de trabajo dentro del contenedor
 WORKDIR /app
