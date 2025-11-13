@@ -1,6 +1,6 @@
 # 1. IMAGEN BASE: Usamos openjdk:17-jdk, que es más seguro y fácil de encontrar.
 # Usar la etiqueta 'jdk' es más fiable que 'jdk-slim' en algunos entornos de despliegue.
-FROM openjdk:17-slim
+FROM openjdk:17-jdk-slim-bullseye
 
 # 2. DIRECTORIO DE TRABAJO
 WORKDIR /app
