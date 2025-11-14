@@ -1,3 +1,6 @@
+// ====== CONFIGURACIÓN DE BACKEND ======
+const API_URL = "https://demoscanwatter.onrender.com/api/auth";
+
 // ===== VALIDACIÓN DE EMAIL =====
 function validarEmail(email) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -5,7 +8,6 @@ function validarEmail(email) {
 }
 
 // ===== VALIDACIÓN DE CONTRASEÑA =====
-// Ahora acepta cualquier carácter especial y da mensajes claros
 function validarPassword(password) {
   if (password.length < 8) {
     alert("La contraseña debe tener al menos 8 caracteres.");
@@ -24,7 +26,7 @@ function validarPassword(password) {
     return false;
   }
   if (!/[^A-Za-z0-9]/.test(password)) {
-    alert("La contraseña debe incluir al menos un carácter especial (ej: #, %, $, !, ?).");
+    alert("La contraseña debe incluir al menos un carácter especial.");
     return false;
   }
   return true;
@@ -48,9 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      if (!validarPassword(pass)) {
-        return; // ya se mostró un mensaje específico
-      }
+      if (!validarPassword(pass)) return;
 
       if (pass !== confirmPass) {
         alert("Las contraseñas no coinciden");
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // ===== LLAMADA AL BACKEND PARA REGISTRO =====
-      fetch("http://localhost:8080/api/auth/register", {
+      fetch(`${API_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`
@@ -68,8 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.startsWith("Error")) {
           alert(data);
         } else {
-          
-          window.location.href = "login.html"; // redirige al login
+          window.location.href = "login.html";
         }
       })
       .catch(err => alert("Error al registrar: " + err));
@@ -96,18 +95,17 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // ===== LLAMADA AL BACKEND PARA LOGIN =====
-      fetch("http://localhost:8080/api/auth/login", {
+      fetch(`${API_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `email=${encodeURIComponent(email)}`
+        body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`
       })
       .then(res => res.text())
       .then(data => {
         if (data.startsWith("Error")) {
           alert(data);
         } else {
-          
-          window.location.href = "index.html"; // redirige a la página principal
+          window.location.href = "index.html";
         }
       })
       .catch(err => alert("Error al iniciar sesión: " + err));

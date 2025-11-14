@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.cloud.FirestoreClient;
@@ -15,8 +16,9 @@ public class FirebaseAuthService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    // Registrar usuario, generar hash y guardar en Firestore
+    // ===== REGISTRO =====
     public String registrarUsuario(String email, String password) throws Exception {
+
         // Crear usuario en Firebase Auth
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                 .setEmail(email)
@@ -25,15 +27,15 @@ public class FirebaseAuthService {
         UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
         String uid = userRecord.getUid();
 
-        //Generar hash de la contraseña con BCrypt
+        // Generar hash BCRYPT
         String hash = passwordEncoder.encode(password);
 
-        // Guardar usuario y hash en Firestore
+        // Guardar usuario + hash en Firestore
         Firestore db = FirestoreClient.getFirestore();
         Map<String, Object> data = new HashMap<>();
         data.put("email", email);
         data.put("uid", uid);
-        data.put("passwordHash", hash); // aquí verás el hash en Firestore
+        data.put("passwordHash", hash);
         data.put("createdAt", new java.util.Date());
 
         db.collection("users").document(uid).set(data).get();
@@ -41,31 +43,30 @@ public class FirebaseAuthService {
         return uid;
     }
 
-    // --- Métodos existentes para autenticación aquí ---
 
-   
+    // ===== LOGIN REAL =====
+    public boolean loginUsuario(String email, String password) throws Exception {
 
-    // Guardar lectura en Firestore
-    // public void saveWaterMeasurement(WaterMeasurement measurement) {
-    //     Firestore db = FirestoreClient.getFirestore();
-    //     CollectionReference measurements = db.collection(COLLECTION_NAME);
-    //     ApiFuture<com.google.cloud.firestore.DocumentReference> future = measurements.add(measurement);
-    //     try {
-    //         System.out.println("Documento guardado con ID: " + future.get().getId());
-    //     } catch (InterruptedException | ExecutionException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
+        // Buscar usuario por email en Firebase Auth
+        UserRecord user = FirebaseAuth.getInstance().getUserByEmail(email);
 
-    // Obtener todas las mediciones
-    // public List<WaterMeasurement> getAllWaterMeasurements() {
-    //     Firestore db = FirestoreClient.getFirestore();
-    //     CollectionReference measurements = db.collection(COLLECTION_NAME);
-    //     try {
-    //         return measurements.get().get().toObjects(WaterMeasurement.class);
-    //     } catch (InterruptedException | ExecutionException e) {
-    //         e.printStackTrace();
-    //         return List.of();
-    //     }
-    // }
+        if (user == null) {
+            return false;
+        }
+
+        String uid = user.getUid();
+
+        // Obtener hash guardado en Firestore
+        Firestore db = FirestoreClient.getFirestore();
+        DocumentSnapshot doc = db.collection("users").document(uid).get().get();
+
+        if (!doc.exists()) {
+            return false;
+        }
+
+        String storedHash = doc.getString("passwordHash");
+
+        // Validar contraseña usando BCrypt
+        return passwordEncoder.matches(password, storedHash);
+    }
 }

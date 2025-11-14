@@ -1,55 +1,71 @@
-package com.example.demo.controller;
+package com.example.demo.service;
 
-import com.example.demo.service.FirebaseAuthService;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserRecord;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import com.google.firebase.cloud.FirestoreClient;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
-@RestController
-@RequestMapping("/api/auth")
-@CrossOrigin(origins = "*") // permite llamadas desde tu frontend
-public class AuthController {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-    @Autowired
-    private FirebaseAuthService authService;
+@Service
+public class FirebaseAuthService {
 
-    // Registro
-    @PostMapping("/register")
-public String register(@RequestParam String email, @RequestParam String password) {
-    try {
-        String uid = authService.registrarUsuario(email, password);
-        return "Usuario registrado con UID: " + uid;
-    } catch (Exception e) {
-        return "Error: " + e.getMessage();
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    // ==== REGISTRO ====
+    public String registrarUsuario(String email, String password) throws Exception {
+
+        UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                .setEmail(email)
+                .setPassword(password);
+
+        UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+        String uid = userRecord.getUid();
+
+        String hash = passwordEncoder.encode(password);
+
+        Firestore db = FirestoreClient.getFirestore();
+        Map<String, Object> data = new HashMap<>();
+        data.put("email", email);
+        data.put("uid", uid);
+        data.put("passwordHash", hash);
+        data.put("createdAt", new java.util.Date());
+
+        db.collection("users").document(uid).set(data).get();
+
+        return uid;
     }
-}
- // --- Endpoints existentes para autenticación aquí ---
 
-    // Recibir datos del Arduino
-    // @PostMapping("/updateWaterData")
-    // public String receiveWaterData(@RequestBody WaterMeasurement measurement) {
-    //     authService.saveWaterMeasurement(measurement);
-    //     System.out.println("Datos recibidos: Flow=" + measurement.getFlowRate() +
-    //                        " L/min | Total Litros=" + measurement.getTotalLiters());
-    //     return "ok";
-    // }
+    // ==== LOGIN ====
+    public boolean loginUsuario(String email, String password) throws InterruptedException, ExecutionException {
 
-    // Obtener todas las mediciones
-    // @GetMapping("/waterMeasurements")
-    // public List<WaterMeasurement> getWaterMeasurements() {
-    //     return authService.getAllWaterMeasurements();
-    // }
+        Firestore db = FirestoreClient.getFirestore();
 
-    // Login
-   // @PostMapping("/login")
-    //public String login(@RequestParam String email) {
-       // try {
-         //   UserRecord user = authService.loginUsuario(email);
-       //     return "Usuario autenticado: " + user.getEmail();
-       // } catch (Exception e) {
-        //    return "Error: " + e.getMessage();
-       // }
-    //}
-   
+        // Buscar por email
+        QuerySnapshot snapshot = db.collection("users")
+                .whereEqualTo("email", email)
+                .get()
+                .get();
 
+        if (snapshot.isEmpty()) {
+            return false; // usuario NO encontrado
+        }
+
+        QueryDocumentSnapshot userDoc = snapshot.getDocuments().get(0);
+
+        String storedHash = userDoc.getString("passwordHash");
+
+        if (storedHash == null) {
+            return false;
+        }
+
+        // Validar password con BCrypt
+        return passwordEncoder.matches(password, storedHash);
+    }
 }
