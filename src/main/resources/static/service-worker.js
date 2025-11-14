@@ -25,8 +25,7 @@ self.addEventListener("install", event => {
   );
 });
 
-
-// Activar SW y limpiar los  viejos caches
+// Activar SW y limpiar los viejos caches
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys => {
@@ -39,6 +38,11 @@ self.addEventListener("activate", event => {
 
 // Interceptar solicitudes y servir desde caché si es posible
 self.addEventListener("fetch", event => {
+  // Ignorar todas las peticiones a /api/
+  if (event.request.url.includes("/api/")) {
+    return; // Deja que pasen directamente al backend
+  }
+
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request);

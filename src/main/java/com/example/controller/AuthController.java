@@ -50,4 +50,6 @@ public String register(@RequestParam String email, @RequestParam String password
         //    return "Error: " + e.getMessage();
        // }
     //}
+   
+
 }

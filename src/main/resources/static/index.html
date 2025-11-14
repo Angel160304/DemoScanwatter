@@ -12,6 +12,15 @@
 </head>
 <body>
 
+<!-- Verificación de sesión con Firebase -->
+<script>
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = "login.html";
+    }
+  });
+</script>
+
 <!-- NAVBAR -->
 <nav class="navbar">
   <div class="logo">ScanWatter</div>
@@ -47,7 +56,7 @@
     </div>
     <div class="card">
       <h3>Alertas inteligentes</h3>
-      <p>Recibe notificaciones automáticas si detectamos un consumo inusual, posibles fugas o desperdicios. Las alertas pueden ser enviadas vía correo electrónico, app móvil o SMS.</p>
+      <p>Recibe notificaciones automáticas si detectamos un consumo inusual, posibles fugas o desperdicios. Las alertas pueden enviarse vía correo electrónico, app móvil o SMS.</p>
     </div>
     <div class="card">
       <h3>Reportes detallados</h3>
@@ -80,7 +89,7 @@
   </div>
 </section>
 
-<!-- Monitoreo con gráficos -->
+<!-- MONITOREO CON GRÁFICAS -->
 <section id="monitoreo" class="section">
   <h2>Monitoreo en Gráficas</h2>
   <p class="section-text">Visualiza tu consumo de agua de manera dinámica y comprensible. Nuestras gráficas interactivas muestran la evolución diaria, semanal y mensual, permitiendo tomar decisiones más acertadas y optimizar el uso del recurso.</p>
