@@ -1,71 +1,41 @@
-package com.example.demo.service;
+package com.example.demo.controller;
 
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.UserRecord;
-import com.google.firebase.cloud.FirestoreClient;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
+import com.example.demo.service.FirebaseAuthService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
+@RestController
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")
+public class AuthController {
 
-@Service
-public class FirebaseAuthService {
+    @Autowired
+    private FirebaseAuthService authService;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    // ==== REGISTRO ====
-    public String registrarUsuario(String email, String password) throws Exception {
-
-        UserRecord.CreateRequest request = new UserRecord.CreateRequest()
-                .setEmail(email)
-                .setPassword(password);
-
-        UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
-        String uid = userRecord.getUid();
-
-        String hash = passwordEncoder.encode(password);
-
-        Firestore db = FirestoreClient.getFirestore();
-        Map<String, Object> data = new HashMap<>();
-        data.put("email", email);
-        data.put("uid", uid);
-        data.put("passwordHash", hash);
-        data.put("createdAt", new java.util.Date());
-
-        db.collection("users").document(uid).set(data).get();
-
-        return uid;
+    // ===== REGISTRO =====
+    @PostMapping("/register")
+    public String register(@RequestParam String email, @RequestParam String password) {
+        try {
+            String uid = authService.registrarUsuario(email, password);
+            return "Usuario registrado con UID: " + uid;
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
     }
 
-    // ==== LOGIN ====
-    public boolean loginUsuario(String email, String password) throws InterruptedException, ExecutionException {
+    // ===== LOGIN =====
+    @PostMapping("/login")
+    public String login(@RequestParam String email, @RequestParam String password) {
+        try {
+            boolean valido = authService.loginUsuario(email, password);
 
-        Firestore db = FirestoreClient.getFirestore();
+            if (!valido) {
+                return "Error: Credenciales incorrectas";
+            }
 
-        // Buscar por email
-        QuerySnapshot snapshot = db.collection("users")
-                .whereEqualTo("email", email)
-                .get()
-                .get();
-
-        if (snapshot.isEmpty()) {
-            return false; // usuario NO encontrado
+            return "Login exitoso";
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
         }
-
-        QueryDocumentSnapshot userDoc = snapshot.getDocuments().get(0);
-
-        String storedHash = userDoc.getString("passwordHash");
-
-        if (storedHash == null) {
-            return false;
-        }
-
-        // Validar password con BCrypt
-        return passwordEncoder.matches(password, storedHash);
     }
 }
