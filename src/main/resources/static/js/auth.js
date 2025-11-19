@@ -35,7 +35,7 @@ function validarPassword(password) {
 // ===== FUNCIONES DE REGISTRO Y LOGIN =====
 document.addEventListener("DOMContentLoaded", () => {
 
-  // ===== REGISTRO =====
+  // ===== REGISTROoo =====
   const registroForm = document.querySelector("#registroForm");
   if (registroForm) {
     registroForm.addEventListener("submit", (e) => {
