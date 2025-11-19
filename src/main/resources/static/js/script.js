@@ -21,10 +21,10 @@ const lineChart = new Chart(ctxLine, {
     },
     options:{
         responsive:true,
-        plugins:{legend:{labels:{color:'#fff'}}},
+        plugins:{ legend:{ labels:{ color:'#fff' } } },
         scales:{
-            y:{ticks:{color:'#fff'}},
-            x:{ticks:{color:'#fff'}}
+            y:{ ticks:{ color:'#fff' } },
+            x:{ ticks:{ color:'#fff' } }
         }
     }
 });
@@ -45,10 +45,10 @@ const barChart = new Chart(ctxBar, {
     },
     options:{
         responsive:true,
-        plugins:{legend:{labels:{color:'#fff'}}},
+        plugins:{ legend:{ labels:{ color:'#fff' } } },
         scales:{
-            y:{ticks:{color:'#fff'}},
-            x:{ticks:{color:'#fff'}}
+            y:{ ticks:{ color:'#fff' } },
+            x:{ ticks:{ color:'#fff' } }
         }
     }
 });
@@ -56,8 +56,8 @@ const barChart = new Chart(ctxBar, {
 // === Nueva función para actualizar los datos desde tu backend ===
 async function actualizarGraficas() {
   try {
-    // 👉 Cambia localhost si estás usando otro puerto/IP
-    const res = await fetch('http://localhost:8080/api/flujo/datos');
+    // 🟢 YA CAMBIADO AL SERVIDOR EN RENDER (HTTPS)
+    const res = await fetch('https://demoscanwatter.onrender.com/api/flujo/datos');
     const data = await res.json();
 
     // Si no hay datos, salimos
@@ -71,7 +71,7 @@ async function actualizarGraficas() {
 
     const valores = data.map(d => d.valor);
 
-    // === Actualizamos los datos de las gráficas ===
+    // === Actualizamos las gráficas ===
     lineChart.data.labels = labels;
     lineChart.data.datasets[0].data = valores;
     lineChart.update();
