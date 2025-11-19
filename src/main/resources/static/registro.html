@@ -36,6 +36,14 @@
 </form>
 
 <script src="js/auth.js?v=5"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js?v=5');
+  }
+</script>
+<link rel="manifest" href="manifest.json?v=5">
+
+
 
 </body>
 </html>
