@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <title>Dashboard - WaterMonitor</title>
 
+  <!-- Tu CSS con todos los colores y diseño -->
+  <link rel="stylesheet" href="styles3.css">
+
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -32,20 +35,24 @@
       });
     }
   </script>
-
-  <style>
-    body { font-family: Arial; margin: 20px; }
-    canvas { max-width: 600px; }
-  </style>
 </head>
 <body>
-  <h2>Dashboard - Consumo de Agua</h2>
-  <button onclick="logout()">Cerrar Sesión</button><br><br>
+  <!-- Encabezado -->
+  <h2 class="section">Dashboard - Consumo de Agua</h2>
 
-  Selecciona un día:
-  <input type="date" id="datePicker" onchange="loadDay()"><br><br>
+  <!-- Botón de logout -->
+  <button class="button" onclick="logout()">Cerrar Sesión</button>
 
-  <canvas id="chart"></canvas>
+  <!-- Selector de fecha -->
+  <div class="section-alt">
+    <label for="datePicker">Selecciona un día:</label>
+    <input type="date" id="datePicker" class="input" onchange="loadDay()">
+  </div>
+
+  <!-- Contenedor del gráfico -->
+  <div class="chart-container section-alt">
+    <canvas id="chart"></canvas>
+  </div>
 
   <script>
     const ctx = document.getElementById("chart").getContext("2d");
@@ -57,8 +64,22 @@
           label: "Litros por hora",
           data: [],
           fill: false,
+          borderColor: "#00bfff",
+          backgroundColor: "#94d2bd",
           tension: 0.2
         }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: { color: "#fff" }
+          }
+        },
+        scales: {
+          x: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } },
+          y: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } }
+        }
       }
     });
 
