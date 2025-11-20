@@ -341,30 +341,3 @@ canvas {
 
 
 
-.dashboard-wrapper {
-  max-width: 900px;
-  margin: 40px auto;
-  text-align: center;
-}
-
-.dashboard-title {
-  color: white;
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 15px;
-}
-
-.dashboard-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.dashboard-chart-box {
-  background: rgba(0, 0, 0, 0.4);
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  height: 400px;
-}
