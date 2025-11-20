@@ -338,83 +338,45 @@ canvas {
 }
 
 
-/* Fondo */
-body {
-  font-family: Arial, sans-serif;
+
+
+
+body.dashboard-container {
   background: linear-gradient(135deg, #0077b6, #00bfff);
   margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
 }
 
-/* Navbar (SIN CAMBIAR TU DISEÑO) */
-nav.navbar {
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
-  padding: 10px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-nav .logo {
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-nav .nav-links {
-  list-style: none;
-  display: flex;
-  gap: 15px;
-}
-
-nav .nav-links li a {
-  color: white;
-  text-decoration: none;
-  padding: 5px 10px;
-  transition: 0.3s;
-}
-
-nav .nav-links li a:hover {
-  background-color: #ffffff;
-  color: #0077b6;
-  border-radius: 5px;
-}
-
-/* Botones generales */
-button {
-  background-color: white;
-  color: #0077b6;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: 0.3s;
-  font-weight: bold;
-}
-
-button:hover {
-  background-color: #005f99;
-  color: white;
-}
-
-/* Contenedor de los botones extra */
-.control-buttons {
+/* Botones sólo de dashboard */
+.dashboard-buttons {
   display: flex;
   gap: 10px;
-  margin-top: 10px;
+  margin: 10px auto;
+  justify-content: center;
 }
 
-/* Gráfica */
-#chartContainer {
+.dashboard-buttons button,
+.dashboard-buttons input {
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  border: none;
+}
+
+.dashboard-buttons button:hover {
+  background: #005f99;
+  color: white;
+  cursor: pointer;
+}
+
+/* Gráfica más chica */
+.dashboard-chart {
   width: 90%;
   max-width: 600px;
   margin: 30px auto;
-  background: white;
   padding: 15px;
+  background: white;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
 }
@@ -423,3 +385,4 @@ canvas {
   width: 100% !important;
   height: auto !important;
 }
+

@@ -10,9 +10,9 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body class="dashboard-container">
 
-  <!-- Tu menú original (sin cambios estructurales) -->
+  <!-- NAVBAR NO SE MODIFICA -->
   <nav class="navbar">
     <div class="logo">ScanWatter</div>
     <ul class="nav-links">
@@ -24,15 +24,15 @@
     </ul>
   </nav>
 
-  <!-- Contenedor de botones -->
-  <div class="control-buttons">
-    <button onclick="window.location.href='index.html'">Back</button>
-    <input type="date" id="datePicker" />
-    <button id="logoutButton">Cerrar sesión</button>
-  </div>
+  <!-- Botones solo de dashboard -->
+  <section class="dashboard-buttons">
+    <button class="btn-back" onclick="window.location.href='index.html'">Back</button>
+    <input type="date" id="datePicker" class="dashboard-date"/>
+    <button id="logoutButton" class="dashboard-logout">Cerrar sesión</button>
+  </section>
 
-  <!-- Contenedor de gráfica -->
-  <div id="chartContainer">
+  <!-- Gráfica -->
+  <div class="dashboard-chart">
     <canvas id="chart"></canvas>
   </div>
 
@@ -44,7 +44,7 @@
       });
     });
 
-    // Lógica para cargar la gráfica (tuya, solo referenciada)
+    // Inicializar gráfica
     window.addEventListener("load", () => {
       const ctx = document.getElementById("chart").getContext("2d");
       window.chart = new Chart(ctx, {
@@ -64,7 +64,7 @@
       });
     });
 
-    // Aquí deberías tener tu función loadDay() para recargar la gráfica con la fecha
+    // Al seleccionar día, recargar datos
     document.getElementById("datePicker").addEventListener("change", loadDay);
   </script>
 
