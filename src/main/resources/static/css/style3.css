@@ -341,65 +341,62 @@ canvas {
 
 
 
-.dashboard-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #0077b6, #00bfff);
-  min-height: 100vh;
-  color: white;
-}
-
-.dashboard-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 30px;
-}
-
-.dashboard-links {
-  list-style: none;
-  display: flex;
-  gap: 15px;
-  align-items: center;
-}
-
-.dashboard-links li {
-  display: flex;
-}
-
+/* === BOTONES DASHBOARD (adaptado del botón de ejemplo) === */
 .btn-dashboard {
-  background: linear-gradient(135deg, #054774, #0580a9);
-  color: white;
   border: none;
-  padding: 12px 20px;
-  border-radius: 10px;
+  padding: 15px 35px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #0077b6, #00bfff);
   cursor: pointer;
-  font-weight: bold;
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
-  text-align: center;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0,150,255,0.3);
+  transition: all 0.3s ease;
   display: inline-block;
+  text-align: center;
 }
 
 .btn-dashboard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,150,255,0.5);
 }
 
+/* === Input de fecha para que tenga mismo tamaño === */
 .date-input {
+  padding: 15px 35px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #0077b6, #00bfff);
   color: white;
-  background: transparent;
   border: none;
-  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,150,255,0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
-.dashboard-chart-container {
-  width: 80%;
-  height: 50vh;
-  margin: 20px auto;
+/* Color del ícono del calendario */
+.date-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
 }
 
-.dashboard-title {
-  text-align: center;
-  margin-top: 10px;
-  font-weight: bold;
+/* Alinear los botones bien */
+.dashboard-links li {
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-links {
+  display: flex;
+  gap: 10px;
+  list-style: none;
+}
+
+/* Asegurar mismo tamaño entre <a>, <button> y <input> */
+.dashboard-links a,
+.dashboard-links button,
+.dashboard-links input {
+  width: 180px;
 }
