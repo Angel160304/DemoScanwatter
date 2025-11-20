@@ -50,7 +50,7 @@
 
     try {
       await firebase.auth().signInWithEmailAndPassword(email, password);
-      window.location.href = "dashboard.html";
+      window.location.href = "index.html";
     } catch (error) {
       alert("Error: Credenciales incorrectas o usuario no registrado.");
       console.error(error);
