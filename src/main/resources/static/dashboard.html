@@ -8,7 +8,7 @@
 </head>
 <body class="dashboard-body">
 
-  <!-- NAV -->
+  <!-- NAV PRINCIPAL -->
   <nav class="dashboard-nav">
     <div class="logo">ScanWatter</div>
     <ul class="dashboard-links">
@@ -18,17 +18,32 @@
     </ul>
   </nav>
 
-  <!-- Título -->
-  <h2 class="dashboard-title">Visualización de Consumo de Agua</h2>
+  <!-- CONTENEDOR CENTRAL (como en la imagen) -->
+  <div class="dashboard-wrapper">
 
-  <!-- Contenedor de gráfica -->
-  <div class="dashboard-chart-container">
-    <canvas id="chart"></canvas>
+    <!-- TÍTULO -->
+    <h2 class="dashboard-title">Visualización de Consumo de Agua</h2>
+
+    <!-- BOTONES A LA DERECHA -->
+    <div class="dashboard-actions">
+      <button class="btn">Día</button>
+      <button class="btn">Semana</button>
+      <button class="btn">Mes</button>
+    </div>
+
+    <!-- GRÁFICA -->
+    <div class="dashboard-chart-box">
+      <canvas id="chart"></canvas>
+    </div>
+
   </div>
 
+  <!-- FIREBASE -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <!-- CHART JS -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
@@ -39,7 +54,7 @@
       });
     });
 
-    // Inicializar gráfica
+    // Gráfica
     window.addEventListener("load", () => {
       const ctx = document.getElementById("chart").getContext("2d");
       window.chart = new Chart(ctx, {
@@ -47,12 +62,15 @@
         data: {
           labels: [],
           datasets: [{
-            label: "Consumo",
+            label: "Litros consumidos (L/min)",
             data: [],
-            borderWidth: 2,
-            borderColor: "#007bff",
-            pointBackgroundColor: "#007bff",
-            pointRadius: 4
+            borderWidth: 3,
+            borderColor: "#00bfff",
+            pointBackgroundColor: "#00bfff",
+            pointRadius: 4,
+            backgroundColor: "rgba(0, 191, 255, 0.2)", // relleno suave como en imagen
+            fill: true,
+            tension: 0.4
           }]
         },
         options: {

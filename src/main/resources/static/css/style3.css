@@ -341,62 +341,30 @@ canvas {
 
 
 
-/* === BOTONES DASHBOARD (adaptado del botón de ejemplo) === */
-.btn-dashboard {
-  border: none;
-  padding: 15px 35px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  background: linear-gradient(90deg, #0077b6, #00bfff);
-  cursor: pointer;
-  color: #fff;
-  box-shadow: 0 4px 15px rgba(0,150,255,0.3);
-  transition: all 0.3s ease;
-  display: inline-block;
+.dashboard-wrapper {
+  max-width: 900px;
+  margin: 40px auto;
   text-align: center;
 }
 
-.btn-dashboard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,150,255,0.5);
-}
-
-/* === Input de fecha para que tenga mismo tamaño === */
-.date-input {
-  padding: 15px 35px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 600;
-  background: linear-gradient(90deg, #0077b6, #00bfff);
+.dashboard-title {
   color: white;
-  border: none;
-  box-shadow: 0 4px 15px rgba(0,150,255,0.3);
-  transition: all 0.3s ease;
-  cursor: pointer;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 15px;
 }
 
-/* Color del ícono del calendario */
-.date-input::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  cursor: pointer;
-}
-
-/* Alinear los botones bien */
-.dashboard-links li {
+.dashboard-actions {
   display: flex;
-  align-items: center;
-}
-
-.dashboard-links {
-  display: flex;
+  justify-content: flex-end;
   gap: 10px;
-  list-style: none;
+  margin-bottom: 20px;
 }
 
-/* Asegurar mismo tamaño entre <a>, <button> y <input> */
-.dashboard-links a,
-.dashboard-links button,
-.dashboard-links input {
-  width: 180px;
+.dashboard-chart-box {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  height: 400px;
 }
