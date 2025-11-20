@@ -341,80 +341,64 @@ canvas {
 
 
 
-/* Fondo azul degradado */
 .dashboard-body {
-  background: linear-gradient(-45deg, #0077b6, #00bfff);
-  background-size: 400% 400%;
-  animation: gradientBG 12s ease infinite;
-  font-family: 'Poppins', sans-serif;
-  color: #fff;
+  background: linear-gradient(135deg, #0077b6, #00bfff);
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  margin: 0;
 }
 
-/* Navbar */
 .dashboard-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 40px;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
+  padding: 15px 30px;
+  color: white;
 }
 
 .dashboard-links {
-  list-style: none;
   display: flex;
-  gap: 20px;
-  align-items: center;
+  gap: 15px;
+  list-style: none;
 }
 
-.dashboard-links a,
-.btn-dashboard {
-  background: linear-gradient(90deg, #0077b6, #00bfff);
-  padding: 8px 18px;
-  color: #fff;
-  border-radius: 8px;
-  text-decoration: none;
+.btn-back, .btn-dashboard {
+  padding: 8px 15px;
   border: none;
+  border-radius: 8px;
+  background: #023e8a;
+  color: white;
   cursor: pointer;
-  display: inline-block;
-  font-weight: 600;
-  transition: 0.3s ease;
+  transition: 0.2s;
 }
 
-.dashboard-links a:hover,
-.btn-dashboard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0,150,255,0.5);
+.btn-dashboard {
+  background: #d90429;
 }
 
-/* Input de fecha */
-.date-input {
-  padding: 5px 10px;
-  border-radius: 8px;
-  border: none;
-  outline: none;
+.btn-back:hover, .btn-dashboard:hover {
+  transform: scale(1.05);
 }
 
-/* Contenedor de gráfica */
+.dashboard-title {
+  text-align: center;
+  color: white;
+  margin-top: 10px;
+  font-size: 24px;
+}
+
 .dashboard-chart-container {
-  width: 60%;
-  height: 400px;
-  margin: 50px auto;
-  padding: 25px;
-  background: rgba(0,0,0,0.3);
+  width: 90%;
+  max-width: 800px;
+  height: 450px;
+  background: rgba(0, 0, 0, 0.35);
+  margin: 20px auto;
   border-radius: 15px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  padding: 15px;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
   .dashboard-chart-container {
-    width: 90%;
     height: 300px;
-  }
-  .dashboard-links {
-    flex-direction: column;
   }
 }

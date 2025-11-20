@@ -12,17 +12,21 @@
   <nav class="dashboard-nav">
     <div class="logo">ScanWatter</div>
     <ul class="dashboard-links">
-      <li><a href="index.html">Back</a></li>
+      <li><a href="index.html" class="btn-back">Back</a></li>
       <li><input type="date" id="datePicker" class="date-input"></li>
       <li><button id="logoutButton" class="btn-dashboard">Cerrar sesión</button></li>
     </ul>
   </nav>
 
-  <!-- Contenedor de gráfica -->
+  <!-- TÍTULO -->
+  <h2 class="dashboard-title">Visualización de consumo de agua</h2>
+
+  <!-- CONTENEDOR DE LA GRÁFICA -->
   <div class="dashboard-chart-container">
     <canvas id="chart"></canvas>
   </div>
 
+  <!-- FIREBASE Y CHART -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -44,14 +48,29 @@
         data: {
           labels: [],
           datasets: [{
-            label: "Consumo",
+            label: "Litros consumidos (L/min)",
             data: [],
-            borderWidth: 2
+            borderColor: "#00bfff",
+            backgroundColor: "rgba(0, 191, 255, 0.2)",
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 5,
+            pointHoverRadius: 7
           }]
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: "#fff" }
+            }
+          },
+          scales: {
+            x: { ticks: { color: "#fff" } },
+            y: { ticks: { color: "#fff" } }
+          }
         }
       });
     });
