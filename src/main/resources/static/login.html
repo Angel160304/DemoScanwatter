@@ -25,7 +25,77 @@
   <p class="signin">No tienes una cuenta? <a href="registro.html">Regístrate</a></p>
 </form>
 
+<script src="js/auth.js?v=5"></script><!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="css/style2.css">
+</head>
+<body>
+<form class="form" id="loginForm">
+  <p class="title">Login</p>
+  <p class="message">Bienvenido, ingresa tus datos para acceder a la página.</p>
+
+  <label>
+    <input id="logEmail" class="input" type="email" required>
+    <span>Email</span>
+  </label>
+
+  <label>
+    <input id="logPassword" class="input" type="password" required>
+    <span>Contraseña</span>
+  </label>
+
+  <button class="submit">Iniciar sesión</button>
+  <p class="signin">No tienes una cuenta? <a href="registro.html">Regístrate</a></p>
+</form>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
+    authDomain: "scanwatter-1bf04.firebaseapp.com",
+    databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
+    projectId: "scanwatter-1bf04",
+    storageBucket: "scanwatter-1bf04.firebasestorage.app",
+    messagingSenderId: "19246885609",
+    appId: "1:19246885609:web:c50bc7012698ddfcddde78",
+    measurementId: "G-GCR3RHEQQQ"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("logEmail").value.trim();
+    const password = document.getElementById("logPassword").value.trim();
+
+    try {
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      alert("Error: Credenciales incorrectas o usuario no registrado.");
+      console.error(error);
+    }
+  });
+</script>
+
 <script src="js/auth.js?v=5"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js?v=5");
+  }
+</script>
+<link rel="manifest" href="manifest.json?v=5">
+
+</body>
+</html>
+
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js?v=5');

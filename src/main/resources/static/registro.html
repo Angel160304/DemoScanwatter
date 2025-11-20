@@ -4,46 +4,70 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style2.css">
 </head>
 <body>
-  <form class="form" id="registroForm">
+<form class="form" id="registroForm">
   <p class="title">Registro</p>
-  <p class="message">Regístrate ahora para acceder a la página.</p>
-      
-  <label>
-      <input class="input" type="text" placeholder="" required>
-      <span>Nombre</span>
-  </label> 
+  <p class="message">Crea tu cuenta para acceder.</p>
 
   <label>
-      <input id="regEmail" class="input" type="email" placeholder="" required>
-      <span>Email</span>
-  </label> 
-      
-  <label>
-      <input id="regPassword" class="input" type="password" placeholder="" required>
-      <span>Contraseña</span>
+    <input id="regEmail" class="input" type="email" required>
+    <span>Email</span>
   </label>
 
   <label>
-      <input id="regConfirm" class="input" type="password" placeholder="" required>
-      <span>Confirma Contraseña</span>
+    <input id="regPassword" class="input" type="password" required>
+    <span>Contraseña</span>
   </label>
 
-  <button class="submit">Registrarse</button>
-  <p class="signin">¿Ya tienes una cuenta? <a href="login.html">Accede</a></p>
+  <label>
+    <input id="regConfirm" class="input" type="password" required>
+    <span>Confirmar Contraseña</span>
+  </label>
+
+  <button class="submit">Registrarme</button>
+  <p class="signin">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
 </form>
 
-<script src="js/auth.js?v=5"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
 <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js?v=5');
-  }
+  const firebaseConfig = {
+    apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
+    authDomain: "scanwatter-1bf04.firebaseapp.com",
+    databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
+    projectId: "scanwatter-1bf04",
+    storageBucket: "scanwatter-1bf04.firebasestorage.app",
+    messagingSenderId: "19246885609",
+    appId: "1:19246885609:web:c50bc7012698ddfcddde78",
+    measurementId: "G-GCR3RHEQQQ"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  document.getElementById("registroForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    
+    const email = document.getElementById("regEmail").value.trim();
+    const password = document.getElementById("regPassword").value.trim();
+    const confirmPass = document.getElementById("regConfirm").value.trim();
+
+    if (password !== confirmPass) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+
+    try {
+      await firebase.auth().createUserWithEmailAndPassword(email, password);
+      alert("Usuario registrado correctamente");
+      window.location.href = "login.html";
+    } catch (error) {
+      alert("Error al registrar usuario");
+      console.error(error);
+    }
+  });
 </script>
-<link rel="manifest" href="manifest.json?v=5">
-
-
-
 </body>
 </html>

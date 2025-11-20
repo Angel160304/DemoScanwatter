@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Dashboard - WaterMonitor</title>
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -22,6 +21,16 @@
       measurementId: "G-GCR3RHEQQQ"
     };
     firebase.initializeApp(firebaseConfig);
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) window.location = "login.html";
+    });
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    }
   </script>
 
   <style>
@@ -29,32 +38,28 @@
     canvas { max-width: 600px; }
   </style>
 </head>
-
 <body>
   <h2>Dashboard - Consumo de Agua</h2>
-  <button onclick="logout()">Cerrar Sesión</button>
-  <br><br>
+  <button onclick="logout()">Cerrar Sesión</button><br><br>
 
   Selecciona un día:
-  <input type="date" id="datePicker" onchange="loadDay()">
-  <br><br>
+  <input type="date" id="datePicker" onchange="loadDay()"><br><br>
 
   <canvas id="chart"></canvas>
 
-  <!-- IMPORTANTE: agregar auth.js -->
-  <script src="js/auth.js?v=5"></script>
-
   <script>
-    // Verificar autenticación desde auth.js
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) window.location = "login.html";
-    });
-
-    // Gráfica
     const ctx = document.getElementById("chart").getContext("2d");
     const chart = new Chart(ctx, {
       type: "line",
-      data: { labels: [], datasets: [{ label: "Litros por hora", data: [], fill: false, tension: 0.2 }] }
+      data: {
+        labels: [],
+        datasets: [{
+          label: "Litros por hora",
+          data: [],
+          fill: false,
+          tension: 0.2
+        }]
+      }
     });
 
     function loadDay() {
@@ -71,9 +76,11 @@
           return;
         }
 
-        const hours = Object.keys(data).sort((a, b) => Number(a) - Number(b));
+        const hours = Object.keys(data).sort((a,b) => Number(a) - Number(b));
+        const liters = hours.map(h => data[h].litros || 0);
+
         chart.data.labels = hours.map(h => `${h}:00`);
-        chart.data.datasets[0].data = hours.map(h => data[h].litros || 0);
+        chart.data.datasets[0].data = liters;
         chart.update();
       });
     }
@@ -81,6 +88,5 @@
     document.getElementById("datePicker").valueAsDate = new Date();
     loadDay();
   </script>
-
 </body>
 </html>
