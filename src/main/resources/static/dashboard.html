@@ -4,40 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard</title>
-  <link rel="stylesheet" href="css/style2.css" />
+  <link rel="stylesheet" href="css/style3.css" />
+</head>
+<body class="dashboard-body">
+
+  <!-- NAV -->
+  <nav class="dashboard-nav">
+    <div class="logo">ScanWatter</div>
+    <ul class="dashboard-links">
+      <li><a href="index.html">Back</a></li>
+      <li><input type="date" id="datePicker" class="date-input"></li>
+      <li><button id="logoutButton" class="btn-dashboard">Cerrar sesión</button></li>
+    </ul>
+  </nav>
+
+  <!-- Contenedor de gráfica -->
+  <div class="dashboard-chart-container">
+    <canvas id="chart"></canvas>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="dashboard-container">
-
-  <!-- NAVBAR NO SE MODIFICA -->
-  <nav class="navbar">
-    <div class="logo">ScanWatter</div>
-    <ul class="nav-links">
-      <li><a href="#inicio">Inicio</a></li>
-      <li><a href="#funciona">Cómo Funciona</a></li>
-      <li><a href="#beneficios">Beneficios</a></li>
-      <li><a href="#monitoreo">Monitoreo</a></li>
-      <li><a href="dashboard.html">Dashboard</a></li>
-    </ul>
-  </nav>
-
-  <!-- Botones solo de dashboard -->
-  <section class="dashboard-buttons">
-    <button class="btn-back" onclick="window.location.href='index.html'">Back</button>
-    <input type="date" id="datePicker" class="dashboard-date"/>
-    <button id="logoutButton" class="dashboard-logout">Cerrar sesión</button>
-  </section>
-
-  <!-- Gráfica -->
-  <div class="dashboard-chart">
-    <canvas id="chart"></canvas>
-  </div>
 
   <script>
-    // Botón de cerrar sesión
+    // Cerrar sesión
     document.getElementById("logoutButton").addEventListener("click", function () {
       firebase.auth().signOut().then(() => {
         window.location.href = "login.html";
@@ -64,7 +56,7 @@
       });
     });
 
-    // Al seleccionar día, recargar datos
+    // Recarga según fecha
     document.getElementById("datePicker").addEventListener("change", loadDay);
   </script>
 

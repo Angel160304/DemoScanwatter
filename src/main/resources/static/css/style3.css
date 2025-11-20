@@ -341,48 +341,80 @@ canvas {
 
 
 
-body.dashboard-container {
-  background: linear-gradient(135deg, #0077b6, #00bfff);
-  margin: 0;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-}
-
-/* Botones sólo de dashboard */
-.dashboard-buttons {
+/* Fondo azul degradado */
+.dashboard-body {
+  background: linear-gradient(-45deg, #0077b6, #00bfff);
+  background-size: 400% 400%;
+  animation: gradientBG 12s ease infinite;
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+  min-height: 100vh;
   display: flex;
-  gap: 10px;
-  margin: 10px auto;
-  justify-content: center;
+  flex-direction: column;
 }
 
-.dashboard-buttons button,
-.dashboard-buttons input {
-  padding: 8px 15px;
-  border-radius: 5px;
-  font-weight: bold;
+/* Navbar */
+.dashboard-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.dashboard-links a,
+.btn-dashboard {
+  background: linear-gradient(90deg, #0077b6, #00bfff);
+  padding: 8px 18px;
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
   border: none;
-}
-
-.dashboard-buttons button:hover {
-  background: #005f99;
-  color: white;
   cursor: pointer;
+  display: inline-block;
+  font-weight: 600;
+  transition: 0.3s ease;
 }
 
-/* Gráfica más chica */
-.dashboard-chart {
-  width: 90%;
-  max-width: 600px;
-  margin: 30px auto;
-  padding: 15px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+.dashboard-links a:hover,
+.btn-dashboard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,150,255,0.5);
 }
 
-canvas {
-  width: 100% !important;
-  height: auto !important;
+/* Input de fecha */
+.date-input {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
 }
 
+/* Contenedor de gráfica */
+.dashboard-chart-container {
+  width: 60%;
+  height: 400px;
+  margin: 50px auto;
+  padding: 25px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 768px) {
+  .dashboard-chart-container {
+    width: 90%;
+    height: 300px;
+  }
+  .dashboard-links {
+    flex-direction: column;
+  }
+}
