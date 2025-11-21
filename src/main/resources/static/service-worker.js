@@ -1,7 +1,7 @@
 const CACHE_NAME = "ScanWatter-v5"; // ⬅ CAMBIA EL NÚMERO CADA VEZ QUE HAGAS CAMBIOS
 
 const urlsToCache = [
-  "dashboard.html?v=5",
+  //"dashboard.html?v=5",
   "/index.html?v=5",
   "/login.html?v=5",
   "/registro.html?v=5",
