@@ -4,10 +4,14 @@
   <meta charset="UTF-8">
   <title>Dashboard - WaterMonitor</title>
 
+  <!-- Firebase y Chart.js -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Nuevo estilo -->
+  <link rel="stylesheet" href="style4.css">
 
   <script>
     const firebaseConfig = {
@@ -32,20 +36,25 @@
       });
     }
   </script>
-
-  <style>
-    body { font-family: Arial; margin: 20px; }
-    canvas { max-width: 600px; }
-  </style>
 </head>
-<body>
-  <h2>Dashboard - Consumo de Agua</h2>
-  <button onclick="logout()">Cerrar Sesión</button><br><br>
+<body class="dashboard-body">
+  
+  <div class="dashboard-container">
+      
+    <h2 class="dashboard-title">Dashboard - Consumo de Agua</h2>
 
-  Selecciona un día:
-  <input type="date" id="datePicker" onchange="loadDay()"><br><br>
+    <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
 
-  <canvas id="chart"></canvas>
+    <div class="selector-fecha">
+      <label class="label-fecha">Selecciona un día:</label>
+      <input type="date" id="datePicker" onchange="loadDay()" class="input-date">
+    </div>
+
+    <div class="chart-container">
+      <canvas id="chart"></canvas>
+    </div>
+
+  </div>
 
   <script>
     const ctx = document.getElementById("chart").getContext("2d");
@@ -88,5 +97,6 @@
     document.getElementById("datePicker").valueAsDate = new Date();
     loadDay();
   </script>
+
 </body>
 </html>
