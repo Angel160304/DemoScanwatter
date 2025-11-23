@@ -13,12 +13,22 @@
   animation: gradientBG 15s ease infinite;
   color: #fff;
   padding: 40px;
+  position: relative;
 }
 
 @keyframes gradientBG {
   0% {background-position: 0% 50%;}
   50% {background-position: 100% 50%;}
   100% {background-position: 0% 50%;}
+}
+
+/* === BOTONES ARRIBA IZQUIERDA === */
+.top-buttons {
+  position: absolute;
+  top: 20px;
+  left: 40px;
+  display: flex;
+  gap: 10px;
 }
 
 /* === CONTENEDOR PRINCIPAL === */
@@ -37,7 +47,7 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* === BOTÓN CERRAR SESIÓN === */
+/* === BOTONES === */
 .btn-logout {
   border: none;
   padding: 12px 25px;
@@ -48,7 +58,6 @@
   color: #fff;
   box-shadow: 0 4px 15px rgba(0,150,255,0.3);
   transition: all 0.3s;
-  margin-bottom: 20px;
 }
 .btn-logout:hover {
   transform: translateY(-3px);

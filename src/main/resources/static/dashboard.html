@@ -38,12 +38,15 @@
   </script>
 </head>
 <body class="dashboard-body">
-  
-  <div class="dashboard-container">
-      
-    <h2 class="dashboard-title">Dashboard - Consumo de Agua</h2>
 
+  <!-- BOTONES ARRIBA IZQUIERDA -->
+  <div class="top-buttons">
+    <button class="btn-logout" onclick="window.location.href='index.html'">Back</button>
     <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+  </div>
+
+  <div class="dashboard-container">
+    <h2 class="dashboard-title">Dashboard - Consumo de Agua</h2>
 
     <div class="selector-fecha">
       <label class="label-fecha">Selecciona un día:</label>
@@ -53,7 +56,6 @@
     <div class="chart-container">
       <canvas id="chart"></canvas>
     </div>
-
   </div>
 
   <script>
