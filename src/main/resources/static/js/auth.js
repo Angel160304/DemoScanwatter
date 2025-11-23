@@ -3,36 +3,19 @@ const API_URL = "https://demoscanwatter.onrender.com/api/auth";
 
 // ===== VALIDACIÓN DE EMAIL =====
 function validarEmail(email) {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(email);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 // ===== VALIDACIÓN DE CONTRASEÑA =====
 function validarPassword(password) {
-  if (password.length < 8) {
-    alert("La contraseña debe tener al menos 8 caracteres.");
-    return false;
-  }
-  if (!/[a-z]/.test(password)) {
-    alert("La contraseña debe incluir al menos una letra minúscula.");
-    return false;
-  }
-  if (!/[A-Z]/.test(password)) {
-    alert("La contraseña debe incluir al menos una letra mayúscula.");
-    return false;
-  }
-  if (!/[0-9]/.test(password)) {
-    alert("La contraseña debe incluir al menos un número.");
-    return false;
-  }
-  if (!/[^A-Za-z0-9]/.test(password)) {
-    alert("La contraseña debe incluir al menos un carácter especial.");
-    return false;
-  }
+  if (password.length < 8) return alert("La contraseña debe tener al menos 8 caracteres.");
+  if (!/[a-z]/.test(password)) return alert("Debe incluir al menos una letra minúscula.");
+  if (!/[A-Z]/.test(password)) return alert("Debe incluir al menos una letra mayúscula.");
+  if (!/[0-9]/.test(password)) return alert("Debe incluir al menos un número.");
+  if (!/[^A-Za-z0-9]/.test(password)) return alert("Debe incluir un carácter especial.");
   return true;
 }
 
-// ===== FUNCIONES DE REGISTRO Y LOGIN =====
 document.addEventListener("DOMContentLoaded", () => {
 
   // ===== REGISTRO =====
@@ -45,17 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const pass = document.querySelector("#regPassword").value.trim();
       const confirmPass = document.querySelector("#regConfirm").value.trim();
 
-      if (!validarEmail(email)) {
-        alert("El correo no es válido");
-        return;
-      }
-
+      if (!validarEmail(email)) return alert("El correo no es válido");
       if (!validarPassword(pass)) return;
-
-      if (pass !== confirmPass) {
-        alert("Las contraseñas no coinciden");
-        return;
-      }
+      if (pass !== confirmPass) return alert("Las contraseñas no coinciden");
 
       fetch(`${API_URL}/register`, {
         method: "POST",
@@ -67,7 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.startsWith("Error")) {
           alert(data);
         } else {
-          window.location.href = "login.html";
+          // Registro también en Firebase
+          firebase.auth().createUserWithEmailAndPassword(email, pass)
+            .then(() => window.location.href = "login.html")
+            .catch(err => console.error("Firebase Register Error:", err));
         }
       })
       .catch(err => alert("Error al registrar: " + err));
@@ -83,15 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const email = document.querySelector("#logEmail").value.trim();
       const pass = document.querySelector("#logPassword").value.trim();
 
-      if (!validarEmail(email)) {
-        alert("El correo no es válido");
-        return;
-      }
-
-      if (pass.length < 6) {
-        alert("La contraseña es demasiado corta");
-        return;
-      }
+      if (!validarEmail(email)) return alert("El correo no es válido");
+      if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
       fetch(`${API_URL}/login`, {
         method: "POST",
@@ -103,9 +74,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.startsWith("Error")) {
           alert(data);
         } else {
-          // guardar sesión
+          // Guarda sesión local
           localStorage.setItem("usuario", email);
-          window.location.href = "index.html";
+
+          // 🔥 Inicia sesión en Firebase
+          firebase.auth().signInWithEmailAndPassword(email, pass)
+            .then(() => window.location.href = "index.html")
+            .catch(err => {
+              console.error("Firebase Login Error:", err);
+              alert("Error al autenticar con Firebase.");
+            });
         }
       })
       .catch(err => alert("Error al iniciar sesión: " + err));
@@ -113,8 +91,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ===== FUNCIÓN GLOBAL DE CERRAR SESIÓN =====
+// ===== FUNCIÓN GLOBAL PARA CERRAR SESIÓN =====
 function logout() {
   localStorage.removeItem("usuario");
-  window.location.href = "login.html";
+  firebase.auth().signOut().then(() => {
+    window.location.href = "login.html";
+  });
 }
