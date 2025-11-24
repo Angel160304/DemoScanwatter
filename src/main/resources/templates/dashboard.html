@@ -1,85 +1,87 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard - ScanWatter</title>
-  <link rel="stylesheet" href="css/style4.css">
+  <meta charset="UTF-8">
+  <title>Dashboard - ScanWatter</title>
+  <link rel="stylesheet" href="css/style4.css">
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="dashboard-body">
-  <div class="top-buttons">
-    <button onclick="window.location.href='/index'">Back</button>
-    <button onclick="logout()">Cerrar Sesión</button>
-  </div>
+  <div class="top-buttons">
+    <button onclick="window.location.href='/index'">Back</button>
+    <button onclick="logout()">Cerrar Sesión</button>
+  </div>
 
-  <div class="dashboard-container">
-    <h2>Dashboard - Consumo de Agua</h2>
+  <div class="dashboard-container">
+    <h2>Dashboard - Consumo de Agua</h2>
 
-    <!-- Selector de fecha editable solo por admin -->
-    <div class="selector-fecha" id="fechaAdmin">
-      <label>Selecciona un día:</label>
-      <input type="date" id="datePicker" readonly>
-    </div>
+        <div class="selector-fecha" id="fechaAdmin">
+      <label>Selecciona un día:</label>
+      <input type="date" id="datePicker" disabled> 
+    </div>
 
-    <div class="chart-container">
-      <canvas id="chart"></canvas>
-    </div>
-  </div>
+    <div class="chart-container">
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "TU_API_KEY",
-      authDomain: "scanwatter-1bf04.firebaseapp.com",
-      databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
-      projectId: "scanwatter-1bf04",
-      storageBucket: "scanwatter-1bf04.firebasestorage.app",
-      messagingSenderId: "19246885609",
-      appId: "1:19246885609:web:c50bc7012698ddfcddde78"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const database = firebase.database();
-    const dateInput = document.getElementById("datePicker");
+  <script>
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "scanwatter-1bf04.firebaseapp.com",
+      databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
+      projectId: "scanwatter-1bf04",
+      storageBucket: "scanwatter-1bf04.firebasestorage.app",
+      messagingSenderId: "19246885609",
+      appId: "1:19246885609:web:c50bc7012698ddfcddde78"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+    const dateInput = document.getElementById("datePicker");
 
-    // Verificar autenticación y rol
-    auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        window.location.replace("/login");
-        return;
-      }
+    // Verificar autenticación y rol
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.replace("/login");
+        return;
+      }
 
-      const tokenResult = await user.getIdTokenResult(true);
-      const uid = user.uid;
-      const role = tokenResult.claims.role || "USER";
+      const tokenResult = await user.getIdTokenResult(true);
+      const uid = user.uid;
+      const role = tokenResult.claims.role || "USER";
 
-      // Solo UID de admin puede modificar selector
-      if (uid === "7NdfxdEsU9cSfuHH8cWWthcwGE03" && role === "ADMIN") {
-        dateInput.removeAttribute("readonly");
-      } else {
-        dateInput.setAttribute("readonly", true);
-        dateInput.addEventListener("click", () => {
-          alert("No tienes permisos para seleccionar una fecha.");
-        });
-      }
+      // Definición del administrador
+      const ADMIN_UID = "7NdfxdEsU9cSfuHH8cWWthcwGE03";
+      const isAdmin = (uid === ADMIN_UID && role === "ADMIN");
 
-      // Guardar token y rol localmente
-      localStorage.setItem("userToken", tokenResult.token);
-      localStorage.setItem("userRole", role);
-    });
+      // Lógica para habilitar/deshabilitar el selector de fecha
+      if (isAdmin) {
+        // ✅ Si es admin, habilita el campo para interactuar
+        dateInput.removeAttribute("disabled");
+      } else {
+        // ❌ Si no es admin, asegura que el campo esté deshabilitado
+        dateInput.setAttribute("disabled", true);
+      }
 
-    function logout() {
-      localStorage.removeItem("usuario");
-      localStorage.removeItem("userToken");
-      localStorage.removeItem("userRole");
-      auth.signOut().then(() => window.location.replace("/login"));
-    }
-  </script>
+      // Guardar token y rol localmente
+      localStorage.setItem("userToken", tokenResult.token);
+      localStorage.setItem("userRole", role);
+    });
 
-  <script src="js/script.js"></script>
-  <script src="js/auth.js"></script>
+    function logout() {
+      localStorage.removeItem("usuario");
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("userRole");
+      auth.signOut().then(() => window.location.replace("/login"));
+    }
+  </script>
+
+  <script src="js/script.js"></script>
+  <script src="js/auth.js"></script>
 </body>
 </html>
