@@ -4,18 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ScanWatter - Monitoreo Inteligente de Agua</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style3.css">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#2E7D32">
 
-  <!-- Firebase -->
+  <!-- 🔒 Firebase + Auth Check -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
   <script>
-    // Config Firebase
     const firebaseConfig = {
       apiKey: "TU_API_KEY",
       authDomain: "scanwatter-1bf04.firebaseapp.com",
@@ -25,27 +22,21 @@
       messagingSenderId: "19246885609",
       appId: "1:19246885609:web:c50bc7012698ddfcddde78"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // 🔒 Bloqueo de acceso
-    auth.onAuthStateChanged(async user => {
+    async function checkAuth() {
+      const user = auth.currentUser;
       if (!user) {
-        window.location.replace("/login.html"); // Si no hay sesión → login
+        window.location.replace("/login.html");
       } else {
         const token = await user.getIdToken();
-        localStorage.setItem("userToken", token); // Guardamos token
+        localStorage.setItem("userToken", token);
       }
-    });
-
-    // Logout
-    async function logout() {
-      localStorage.removeItem("usuario");
-      localStorage.removeItem("userToken");
-      await auth.signOut();
-      window.location.href = "/login.html";
     }
+
+    // Ejecutar al inicio
+    checkAuth();
   </script>
 </head>
 <body>
@@ -82,8 +73,9 @@
 
     function logout() {
       localStorage.removeItem("usuario");
-      firebase.auth().signOut().then(() => {
-        window.location.href = "login.html";
+      localStorage.removeItem("userToken");
+      auth.signOut().then(() => {
+        window.location.href = "/login.html";
       });
     }
   </script>
