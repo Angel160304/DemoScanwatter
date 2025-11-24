@@ -17,12 +17,12 @@ public class ViewController {
     }
 
     @GetMapping("/index")
-    public String index() {
-        return "index"; // requiere autenticación
-    }
+public String index() {
+    return "index"; // ahora busca templates/index.html
+}
 
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        return "dashboard"; // requiere autenticación
-    }
+@GetMapping("/dashboard")
+public String dashboard() {
+    return "dashboard"; // ahora busca templates/dashboard.html
+}
 }

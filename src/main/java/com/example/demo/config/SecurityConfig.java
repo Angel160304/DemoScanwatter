@@ -16,18 +16,18 @@ public class SecurityConfig {
         this.firebaseAuthFilter = firebaseAuthFilter;
     }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/registro", "/css/**", "/js/**", "/images/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable())
-            .addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class);
+   @Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/login.html", "/registro.html", "/css/**", "/js/**", "/images/**").permitAll()
+            .anyRequest().authenticated()
+        )
+        .formLogin(form -> form.disable())
+        .httpBasic(basic -> basic.disable());
 
-        return http.build();
-    }
+    return http.build();
+}
+
 }
