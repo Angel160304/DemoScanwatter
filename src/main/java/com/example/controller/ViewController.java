@@ -8,21 +8,21 @@ public class ViewController {
 
     @GetMapping("/login")
     public String login() {
-        return "login"; // login.html está en static
+        return "login"; // template login.html en templates/
     }
 
     @GetMapping("/registro")
     public String registro() {
-        return "registro"; // registro.html está en static
+        return "registro"; // template registro.html en templates/
     }
 
     @GetMapping("/index")
     public String index() {
-        return "index"; // template en templates/index.html
+        return "index"; // template index.html en templates/
     }
 
     @GetMapping("/dashboard")
     public String dashboard() {
-        return "dashboard"; // template en templates/dashboard.html
+        return "dashboard"; // template dashboard.html en templates/
     }
 }

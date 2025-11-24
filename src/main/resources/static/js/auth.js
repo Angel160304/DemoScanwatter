@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
           alert(data);
         } else {
           localStorage.setItem("usuario", email);
-          localStorage.setItem("userToken", token); // 🔹 Guarda token
+          localStorage.setItem("userToken", token); // guarda token
           window.location.href = "/index"; // redirige al controlador
         }
       } catch (err) {
