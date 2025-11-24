@@ -9,12 +9,13 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity // 💡 HABILITA EL USO DE @PreAuthorize EN LOS CONTROLADORES
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            // 1. Configuración de Autorización de Rutas
             .authorizeHttpRequests((requests) -> requests
                 .requestMatchers(
                     "/login",
@@ -26,16 +27,19 @@ public class SecurityConfig {
                     "/manifest.json",
                     "/api/auth/verify-token"
                 ).permitAll()
-                .requestMatchers("/dashboard/**", "/api/data/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
+            // 3. Configuración de Login
             .formLogin((form) -> form
                 .loginPage("/login")
                 .permitAll()
             )
+            // 4. Configuración de Logout
             .logout((logout) -> logout.permitAll());
 
+        // Deshabilitar CSRF (solo si sabes lo que haces)
         http.csrf(csrf -> csrf.disable());
+
         return http.build();
     }
 }

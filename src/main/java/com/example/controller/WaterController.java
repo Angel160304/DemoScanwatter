@@ -4,6 +4,7 @@ import com.example.demo.model.WaterMeasurement;
 import com.example.demo.service.WaterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -15,7 +16,6 @@ public class WaterController {
     @Autowired
     private WaterService waterService;
 
-    // ✅ Endpoint para recibir datos del Arduino
     @PostMapping
     public String recibirFlujo(@RequestBody Map<String, Object> data) {
         try {
@@ -28,7 +28,6 @@ public class WaterController {
         }
     }
 
-    // ✅ Endpoint para que tu frontend consulte los datos
     @GetMapping("/datos")
     public List<WaterMeasurement> obtenerDatos() throws ExecutionException, InterruptedException {
         return waterService.obtenerMediciones();
