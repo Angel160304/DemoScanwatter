@@ -9,6 +9,26 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dashboard-body">
+  <div class="top-buttons">
+    <button onclick="window.location.href='/index'">Back</button>
+    <button onclick="logout()">Cerrar Sesión</button>
+  </div>
+
+  <div class="dashboard-container">
+    <h2>Dashboard - Consumo de Agua</h2>
+
+    <!-- Selector de fecha solo editable por admin -->
+    <div class="selector-fecha" id="fechaAdmin">
+      <label>Selecciona un día:</label>
+      <input type="date" id="datePicker" onchange="loadDay()">
+    </div>
+
+    <div class="chart-container">
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
 
   <script>
     const firebaseConfig = {
@@ -22,42 +42,31 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const database = firebase.database();
 
-    async function checkAuth() {
-      return new Promise(resolve => {
-        auth.onAuthStateChanged(async user => {
-          if (!user) {
-            window.location.replace("/login");
-          } else {
-            const token = await user.getIdToken();
-            localStorage.setItem("userToken", token);
-            resolve();
-          }
-        });
-      });
-    }
+    // Verificar auth y rol del usuario
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.replace("/login");
+      } else {
+        const tokenResult = await user.getIdTokenResult();
+        const role = tokenResult.claims.role || "USER";
 
-    await checkAuth();
+        const dateInput = document.getElementById("datePicker");
 
-    // ====== NUEVO: Verificar rol ADMIN para habilitar selector de fecha ======
-    async function checkAdmin() {
-      const user = auth.currentUser;
-      if (!user) return;
+        if (role !== "ADMIN") {
+          // Deshabilita el selector para usuarios normales
+          dateInput.disabled = true;
 
-      const tokenResult = await user.getIdTokenResult();
-      const role = tokenResult.claims.role || "USER";
+          // Opcional: ocultar todo el contenedor
+          // document.getElementById("fechaAdmin").style.display = "none";
+        } else {
+          dateInput.disabled = false;
+        }
 
-      if (role !== "ADMIN") {
-        // Solo el admin puede interactuar con el selector
-        document.getElementById("datePicker").disabled = true;
-
-        // Si quieres ocultar todo el contenedor del selector para usuarios normales:
-        // document.getElementById("fechaAdmin").style.display = "none";
+        // Guardar token localmente
+        localStorage.setItem("userToken", tokenResult.token);
       }
-    }
-
-    await checkAdmin();
+    });
 
     function logout() {
       localStorage.removeItem("usuario");
@@ -65,23 +74,6 @@
       auth.signOut().then(() => window.location.replace("/login"));
     }
   </script>
-</head>
-<body class="dashboard-body">
-  <div class="top-buttons">
-    <button onclick="window.location.href='/index'">Back</button>
-    <button onclick="logout()">Cerrar Sesión</button>
-  </div>
-
-  <div class="dashboard-container">
-    <h2>Dashboard - Consumo de Agua</h2>
-    <div class="selector-fecha" id="fechaAdmin">
-      <label>Selecciona un día:</label>
-      <input type="date" id="datePicker" onchange="loadDay()">
-    </div>
-    <div class="chart-container">
-      <canvas id="chart"></canvas>
-    </div>
-  </div>
 
   <script src="js/script.js"></script>
   <script src="js/auth.js"></script>

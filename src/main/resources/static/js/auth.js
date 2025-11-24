@@ -18,7 +18,7 @@ function validarPassword(password) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    
+
   // ===== REGISTRO =====
   const registroForm = document.querySelector("#registroForm");
   if (registroForm) {
