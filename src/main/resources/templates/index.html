@@ -9,7 +9,7 @@
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#2E7D32">
 
-  <!-- 🔒 Firebase + Auth Check -->
+  <!-- Firebase Auth Check -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script>
@@ -25,12 +25,11 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // 🔒 Función para proteger la página
     async function checkAuth() {
       return new Promise((resolve) => {
         auth.onAuthStateChanged(async (user) => {
           if (!user) {
-            window.location.replace("/login.html");
+            window.location.replace("/login"); // ✅ Redirige a login
           } else {
             const token = await user.getIdToken();
             localStorage.setItem("userToken", token);
@@ -40,13 +39,10 @@
       });
     }
 
-    // Ejecutar al inicio
     await checkAuth();
   </script>
 </head>
 <body>
-
-  <!-- NAVBAR -->
   <nav class="navbar">
     <div class="logo">ScanWatter</div>
     <ul class="nav-links">
@@ -54,35 +50,15 @@
       <li><a href="#funciona">Cómo Funciona</a></li>
       <li><a href="#beneficios">Beneficios</a></li>
       <li><a href="#monitoreo">Monitoreo</a></li>
-      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="/dashboard">Dashboard</a></li> <!-- ✅ Cambiado -->
       <li><a href="#" onclick="logout()">Cerrar Sesión</a></li>
     </ul>
   </nav>
 
-  <!-- CONTENIDO ORIGINAL -->
-
-  <footer class="footer">
-    <!-- CONTENIDO ORIGINAL -->
-  </footer>
+  <footer class="footer"></footer>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/script.js"></script>
-
-  <!-- Service Worker + Logout -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js?v=5')
-        .then(reg => console.log('SW OK:', reg.scope))
-        .catch(err => console.error('SW ERROR:', err));
-    }
-
-    async function logout() {
-      localStorage.removeItem("usuario");
-      localStorage.removeItem("userToken");
-      await auth.signOut();
-      window.location.href = "/login.html";
-    }
-  </script>
-
+  <script src="js/auth.js"></script>
 </body>
 </html>

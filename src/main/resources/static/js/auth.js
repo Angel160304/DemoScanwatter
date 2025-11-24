@@ -33,11 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (pass !== confirmPass) return alert("Las contraseñas no coinciden");
 
       try {
-        // 🔥 Registro en Firebase
+        // Registro en Firebase
         await firebase.auth().createUserWithEmailAndPassword(email, pass);
         const token = await firebase.auth().currentUser.getIdToken();
 
-        // 📡 Registro en backend con token
+        // Registro en backend con token
         const response = await fetch(`${API_URL}/register`, {
           method: "POST",
           headers: {
@@ -48,11 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const data = await response.text();
-
         if (data.startsWith("Error")) {
           alert(data);
         } else {
-          window.location.href = "login.html";
+          window.location.href = "/login"; // ✅ Cambiado a ruta del controlador
         }
       } catch (err) {
         console.error("Error en registro:", err);
@@ -74,11 +73,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
       try {
-        // 🔥 Primero inicia sesión con Firebase
+        // Login en Firebase
         await firebase.auth().signInWithEmailAndPassword(email, pass);
         const token = await firebase.auth().currentUser.getIdToken();
 
-        // 📡 Luego valida en el backend enviando token
+        // Validación en backend con token
         const response = await fetch(`${API_URL}/login`, {
           method: "POST",
           headers: {
@@ -89,13 +88,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const data = await response.text();
-
         if (data.startsWith("Error")) {
           alert(data);
         } else {
           localStorage.setItem("usuario", email);
-          localStorage.setItem("userToken", token); // 🔹 Guarda token
-          window.location.href = "index.html";
+          localStorage.setItem("userToken", token);
+          window.location.href = "/index"; // ✅ Cambiado a ruta del controlador
         }
       } catch (err) {
         console.error("Firebase Login Error:", err);
@@ -110,6 +108,6 @@ function logout() {
   localStorage.removeItem("usuario");
   localStorage.removeItem("userToken");
   firebase.auth().signOut().then(() => {
-    window.location.href = "login.html";
+    window.location.href = "/login"; // ✅ Cambiado a ruta del controlador
   });
 }
