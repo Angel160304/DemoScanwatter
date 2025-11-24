@@ -5,24 +5,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class ViewController {
+
     @GetMapping("/login")
     public String login() {
-        return "login";
+        return "login"; // login.html está en static
     }
 
     @GetMapping("/registro")
     public String registro() {
-        return "registro";
+        return "registro"; // registro.html está en static
     }
 
     @GetMapping("/index")
-public String index() {
-    return "index"; // template index.html en templates/
-}
+    public String index() {
+        return "index"; // template en templates/index.html
+    }
 
-@GetMapping("/dashboard")
-public String dashboard() {
-    return "dashboard"; // template dashboard.html en templates/
-}
-
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "dashboard"; // template en templates/dashboard.html
+    }
 }
