@@ -25,14 +25,19 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
+    // 🔒 Función para proteger la página
     async function checkAuth() {
-      const user = auth.currentUser;
-      if (!user) {
-        window.location.replace("/login.html");
-      } else {
-        const token = await user.getIdToken();
-        localStorage.setItem("userToken", token);
-      }
+      return new Promise((resolve) => {
+        auth.onAuthStateChanged(async (user) => {
+          if (!user) {
+            window.location.replace("/login.html");
+          } else {
+            const token = await user.getIdToken();
+            localStorage.setItem("userToken", token);
+            resolve();
+          }
+        });
+      });
     }
 
     // Ejecutar al inicio
@@ -64,19 +69,18 @@
   <script src="js/script.js"></script>
 
   <!-- Service Worker + Logout -->
-   <script>
+  <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/service-worker.js?v=5')
         .then(reg => console.log('SW OK:', reg.scope))
         .catch(err => console.error('SW ERROR:', err));
     }
 
-    function logout() {
+    async function logout() {
       localStorage.removeItem("usuario");
       localStorage.removeItem("userToken");
-      auth.signOut().then(() => {
-        window.location.href = "/login.html";
-      });
+      await auth.signOut();
+      window.location.href = "/login.html";
     }
   </script>
 
