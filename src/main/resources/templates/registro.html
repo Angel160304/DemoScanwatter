@@ -29,7 +29,7 @@
     </label>
 
     <button class="submit">Registrarme</button>
-    <p class="signin">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
+    <p class="signin">¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
   </form>
 
   <!-- Firebase -->
@@ -68,7 +68,7 @@
         localStorage.setItem("userToken", token);
         localStorage.setItem("usuario", email);
         alert("Usuario registrado correctamente");
-        window.location.replace("/index.html");
+        window.location.replace("/index"); // redirige al controlador seguro
       } catch (error) {
         alert("Error al registrar usuario: " + error.message);
         console.error(error);
