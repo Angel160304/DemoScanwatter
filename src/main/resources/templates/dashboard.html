@@ -42,6 +42,7 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const database = firebase.database();
     const dateInput = document.getElementById("datePicker");
 
     // Verificar autenticación y rol
@@ -52,10 +53,10 @@
       }
 
       const tokenResult = await user.getIdTokenResult(true);
-      const role = tokenResult.claims.role || "USER";
       const uid = user.uid;
+      const role = tokenResult.claims.role || "USER";
 
-      // Solo el UID específico de admin puede modificar
+      // Solo UID de admin puede modificar selector
       if (uid === "7NdfxdEsU9cSfuHH8cWWthcwGE03" && role === "ADMIN") {
         dateInput.removeAttribute("readonly");
       } else {
@@ -65,13 +66,15 @@
         });
       }
 
-      // Guardar token localmente
+      // Guardar token y rol localmente
       localStorage.setItem("userToken", tokenResult.token);
+      localStorage.setItem("userRole", role);
     });
 
     function logout() {
       localStorage.removeItem("usuario");
       localStorage.removeItem("userToken");
+      localStorage.removeItem("userRole");
       auth.signOut().then(() => window.location.replace("/login"));
     }
   </script>

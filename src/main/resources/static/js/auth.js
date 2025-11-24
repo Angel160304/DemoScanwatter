@@ -1,13 +1,11 @@
-// ====== CONFIGURACIÓN DE BACKEND ======
 const API_URL = "https://demoscanwatter.onrender.com/api/auth";
 const auth = firebase.auth();
-const database = firebase.database(); // Firebase 8
+const database = firebase.database();
 
-// ===== VALIDACIÓN DE EMAIL Y PASSWORD =====
+// ===== VALIDACIÓN EMAIL/PASSWORD =====
 function validarEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
-
 function validarPassword(password) {
   if (password.length < 8) return alert("La contraseña debe tener al menos 8 caracteres.");
   if (!/[a-z]/.test(password)) return alert("Debe incluir al menos una letra minúscula.");
@@ -27,28 +25,24 @@ document.addEventListener("DOMContentLoaded", () => {
       const email = document.querySelector("#regEmail").value.trim();
       const pass = document.querySelector("#regPassword").value.trim();
       const confirmPass = document.querySelector("#regConfirm").value.trim();
-      if (!validarEmail(email)) return alert("El correo no es válido");
+
+      if (!validarEmail(email)) return alert("Correo no válido");
       if (!validarPassword(pass)) return;
-      if (pass !== confirmPass) return alert("Las contraseñas no coinciden");
+      if (pass !== confirmPass) return alert("Contraseñas no coinciden");
 
       try {
         await auth.createUserWithEmailAndPassword(email, pass);
         const token = await auth.currentUser.getIdToken();
-
         const response = await fetch(`${API_URL}/register`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": `Bearer ${token}`
-          },
+          headers: { "Content-Type": "application/x-www-form-urlencoded", "Authorization": `Bearer ${token}` },
           body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`
         });
-
         const data = await response.text();
         if (data.startsWith("Error")) alert(data);
         else window.location.href = "/login";
       } catch (err) {
-        console.error("Error en registro:", err);
+        console.error(err);
         alert("Error al registrar");
       }
     });
@@ -61,34 +55,36 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       const email = document.querySelector("#logEmail").value.trim();
       const pass = document.querySelector("#logPassword").value.trim();
-      if (!validarEmail(email)) return alert("El correo no es válido");
-      if (pass.length < 6) return alert("La contraseña es demasiado corta");
+      if (!validarEmail(email)) return alert("Correo no válido");
+      if (pass.length < 6) return alert("Contraseña demasiado corta");
 
       try {
         await auth.signInWithEmailAndPassword(email, pass);
         const token = await auth.currentUser.getIdToken();
+
         const response = await fetch(`${API_URL}/verify-token`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ idToken: token })
         });
 
-        const data = await response.json();
         if (!response.ok) {
-          const errorMessage = data.message || "Error al validar la sesión en el servidor.";
-          alert(`Error de validación: ${errorMessage}`);
+          const data = await response.json();
+          alert(`Error de validación: ${data.message || "Token inválido"}`);
           return;
         }
 
-        // Guardamos usuario, token y rol
+        // Guardar datos localmente
         localStorage.setItem("usuario", email);
         localStorage.setItem("userToken", token);
 
-        // Obtenemos el rol desde el token
-        const role = await auth.currentUser.getIdTokenResult();
-        localStorage.setItem("userRole", role.claims.role || "USER");
+        // Obtener rol y UID
+        const tokenResult = await auth.currentUser.getIdTokenResult();
+        localStorage.setItem("userRole", tokenResult.claims.role || "USER");
+        localStorage.setItem("userUID", auth.currentUser.uid);
 
         window.location.href = "/index";
+
       } catch (err) {
         console.error("Firebase Login Error:", err);
         alert("Error al autenticar, verifica tus credenciales.");
@@ -102,5 +98,6 @@ function logout() {
   localStorage.removeItem("usuario");
   localStorage.removeItem("userToken");
   localStorage.removeItem("userRole");
+  localStorage.removeItem("userUID");
   auth.signOut().then(() => window.location.href = "/login");
 }
