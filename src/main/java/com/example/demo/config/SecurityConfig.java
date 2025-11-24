@@ -12,12 +12,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, FirebaseAuthFilter firebaseAuthFilter) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/registro", "/css/**", "/js/**").permitAll()
-                .anyRequest().authenticated()
-            )
+       http
+    .authorizeHttpRequests(auth -> auth
+        .requestMatchers("/login", "/registro", "/css/**", "/js/**").permitAll()
+        .requestMatchers("/*.html").denyAll() // bloquea cualquier .html
+        .anyRequest().authenticated()
+    );
             // Agrega tu FirebaseAuthFilter antes del filtro de autenticación por defecto
             .addFilterBefore(firebaseAuthFilter, AbstractPreAuthenticatedProcessingFilter.class);
 
