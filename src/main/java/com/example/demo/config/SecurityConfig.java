@@ -9,7 +9,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Habilita @PreAuthorize
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -26,7 +26,7 @@ public class SecurityConfig {
                     "/manifest.json",
                     "/api/auth/verify-token"
                 ).permitAll()
-                .requestMatchers("/dashboard/**").hasRole("ADMIN") // Solo admin puede acceder
+                .requestMatchers("/dashboard/**", "/api/data/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin((form) -> form
@@ -36,7 +36,6 @@ public class SecurityConfig {
             .logout((logout) -> logout.permitAll());
 
         http.csrf(csrf -> csrf.disable());
-
         return http.build();
     }
 }

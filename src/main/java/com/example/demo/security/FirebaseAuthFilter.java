@@ -36,9 +36,8 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
 
         String header = request.getHeader("Authorization");
 
-        // Bloquear si no hay token o es incorrecto
         if (header == null || !header.startsWith("Bearer ")) {
-            response.sendRedirect("/login"); // Redirige al login
+            response.sendRedirect("/login");
             return;
         }
 
@@ -47,7 +46,7 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
         try {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
 
-            // Obtener rol del token (custom claim)
+            // Obtener rol del token
             String role = (String) decodedToken.getClaims().getOrDefault("role", "USER");
             SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
 
@@ -58,18 +57,18 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(auth);
             request.setAttribute("firebaseUser", decodedToken);
 
-            // 🔒 Validación extra: solo ADMIN puede modificar datos sensibles
-            if (path.startsWith("/api/flujo") && !role.equals("ADMIN") && request.getMethod().matches("POST|PUT|DELETE")) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.getWriter().write("Acceso denegado: solo ADMIN puede modificar datos.");
-                return; // Bloquea la petición
+            // Bloquear accesos a rutas sensibles si no es admin
+            if (path.startsWith("/dashboard") || path.startsWith("/api/data/delete")) {
+                if (!"ADMIN".equals(role)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.getWriter().write("No tienes permisos para acceder a esta ruta.");
+                    return;
+                }
             }
 
-            // Continuar con la cadena de filtros
             filterChain.doFilter(request, response);
 
         } catch (Exception e) {
-            // Token inválido → redirige al login
             response.sendRedirect("/login");
         }
     }

@@ -1,7 +1,7 @@
 // ====== CONFIGURACIÓN DE BACKEND ======
 const API_URL = "https://demoscanwatter.onrender.com/api/auth";
 const auth = firebase.auth();
-const database = firebase.database(); // Firebase 8 funciona así
+const database = firebase.database(); // Firebase 8
 
 // ===== VALIDACIÓN DE EMAIL Y PASSWORD =====
 function validarEmail(email) {
@@ -18,6 +18,7 @@ function validarPassword(password) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+
   // ===== REGISTRO =====
   const registroForm = document.querySelector("#registroForm");
   if (registroForm) {
@@ -65,31 +66,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         await auth.signInWithEmailAndPassword(email, pass);
-        const tokenResult = await auth.currentUser.getIdTokenResult(true);
-        const token = tokenResult.token;
-        const role = tokenResult.claims.role || "USER";
-
-        // Validar token en el backend
+        const token = await auth.currentUser.getIdToken();
         const response = await fetch(`${API_URL}/verify-token`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ idToken: token })
         });
 
+        const data = await response.json();
         if (!response.ok) {
-          const data = await response.json();
           const errorMessage = data.message || "Error al validar la sesión en el servidor.";
           alert(`Error de validación: ${errorMessage}`);
           return;
         }
 
-        // Guardar info localmente
+        // Guardamos usuario, token y rol
         localStorage.setItem("usuario", email);
         localStorage.setItem("userToken", token);
-        localStorage.setItem("userRole", role); // Guardar rol del usuario
+
+        // Obtenemos el rol desde el token
+        const role = await auth.currentUser.getIdTokenResult();
+        localStorage.setItem("userRole", role.claims.role || "USER");
 
         window.location.href = "/index";
-
       } catch (err) {
         console.error("Firebase Login Error:", err);
         alert("Error al autenticar, verifica tus credenciales.");
@@ -104,19 +103,4 @@ function logout() {
   localStorage.removeItem("userToken");
   localStorage.removeItem("userRole");
   auth.signOut().then(() => window.location.href = "/login");
-}
-
-// ===== FUNCIONES DE CONTROL DE ROL =====
-// Verifica si el usuario es ADMIN
-async function esAdmin() {
-  const user = auth.currentUser;
-  if (!user) return false;
-  const tokenResult = await user.getIdTokenResult(true);
-  return tokenResult.claims.role === "ADMIN";
-}
-
-// Bloquea acciones sensibles si no es admin
-async function validarAccionAdmin(callback) {
-  if (await esAdmin()) callback();
-  else alert("No tienes permisos para realizar esta acción.");
 }
