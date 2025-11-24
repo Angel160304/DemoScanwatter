@@ -26,7 +26,7 @@ public class FirebaseAuthService {
 
     // Inyectamos FirebaseAuth para la verificación del token (se obtiene de FirebaseConfig)
     @Autowired
-    private FirebaseAuth firebaseAuth; 
+    private FirebaseAuth firebaseAuth;
 
     // ===== REGISTRO (Lógica existente) =====
     public String registrarUsuario(String email, String password) throws Exception {
@@ -55,7 +55,6 @@ public class FirebaseAuthService {
         return uid;
     }
 
-
     // ===== LOGIN REAL (Lógica existente - Mantenida por consistencia) =====
     public boolean loginUsuario(String email, String password) throws Exception {
 
@@ -81,30 +80,27 @@ public class FirebaseAuthService {
         // Validar contraseña usando BCrypt
         return passwordEncoder.matches(password, storedHash);
     }
-    
-    
+
     // ===== 🔑 MÉTODO CRÍTICO PARA SPRING SECURITY (NUEVO) =====
     /**
-     * Valida el token JWT de Firebase recibido del frontend, y si es válido, 
+     * Valida el token JWT de Firebase recibido del frontend, y si es válido,
      * establece la sesión de autenticación en Spring Security.
-     * * @param idToken Token JWT recibido del cliente.
+     *
+     * @param idToken Token JWT recibido del cliente.
      * @return El UID del usuario autenticado.
      * @throws FirebaseAuthException Si el token es inválido o ha expirado.
      */
     public String authenticateToken(String idToken) throws FirebaseAuthException {
+
         // 1. Verificar el token usando Firebase Admin SDK
-        // Esto verifica la firma, la expiración y que sea un token de Firebase válido.
         FirebaseToken decodedToken = firebaseAuth.verifyIdToken(idToken);
         String uid = decodedToken.getUid();
-        
+
         // 2. Autenticar en Spring Security
-        // Creamos un token de autenticación simple. No necesitamos contraseña ya que el token JWT es la prueba.
-        UsernamePasswordAuthenticationToken authentication = 
-            new UsernamePasswordAuthenticationToken(uid, null, Collections.emptyList());
-        
-        // 3. Establecer la autenticación en el contexto de seguridad.
-        // Esto le dice a Spring Security que este usuario (identificado por el UID)
-        // ya está logueado y crea la sesión web (JSESSIONID).
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(uid, null, Collections.emptyList());
+
+        // 3. Establecer la autenticación
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return uid;

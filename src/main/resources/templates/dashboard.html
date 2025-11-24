@@ -20,6 +20,7 @@
       messagingSenderId: "19246885609",
       appId: "1:19246885609:web:c50bc7012698ddfcddde78"
     };
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
@@ -47,6 +48,7 @@
     }
   </script>
 </head>
+
 <body class="dashboard-body">
   <div class="top-buttons">
     <button onclick="window.location.href='/index'">Back</button>
@@ -55,10 +57,12 @@
 
   <div class="dashboard-container">
     <h2>Dashboard - Consumo de Agua</h2>
+
     <div class="selector-fecha">
       <label>Selecciona un día:</label>
       <input type="date" id="datePicker" onchange="loadDay()">
     </div>
+
     <div class="chart-container">
       <canvas id="chart"></canvas>
     </div>
