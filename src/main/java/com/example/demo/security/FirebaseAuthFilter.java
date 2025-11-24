@@ -6,6 +6,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -19,11 +21,21 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+        // Permitir acceso público a login, registro y recursos estáticos
+        if (path.startsWith("/login") || path.startsWith("/registro") 
+            || path.startsWith("/css/") || path.startsWith("/js/") 
+            || path.startsWith("/images/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
 
-        // Si no hay token, bloquea acceso
+        // Bloquear si no hay token
         if (header == null || !header.startsWith("Bearer ")) {
-            response.sendRedirect("/login"); // Redirige al login si no hay token
+            response.sendRedirect("/login"); // Redirige al login
             return;
         }
 
@@ -31,9 +43,18 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
 
         try {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+
+            // Crear autenticación para Spring Security
+            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                    decodedToken.getUid(), null, null
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(auth);
             request.setAttribute("firebaseUser", decodedToken);
+
         } catch (Exception e) {
-            response.sendRedirect("/login"); // Redirige si el token no es válido
+            // Token inválido → redirige al login
+            response.sendRedirect("/login");
             return;
         }
 
