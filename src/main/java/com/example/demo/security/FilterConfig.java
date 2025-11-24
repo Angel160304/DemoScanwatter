@@ -14,13 +14,14 @@ public class FilterConfig {
         this.firebaseAuthFilter = firebaseAuthFilter;
     }
 
-   @Bean
-public FilterRegistrationBean<FirebaseAuthFilter> registrationBean() {
-    FilterRegistrationBean<FirebaseAuthFilter> registrationBean = new FilterRegistrationBean<>();
-    registrationBean.setFilter(firebaseAuthFilter);
+    @Bean
+    public FilterRegistrationBean<FirebaseAuthFilter> registrationBean() {
+        FilterRegistrationBean<FirebaseAuthFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(firebaseAuthFilter);
 
-    // Ejecutar filtro en todas las rutas
-    registrationBean.addUrlPatterns("/*");
+        // Aplicar el filtro a todas las rutas
+        registrationBean.addUrlPatterns("/*");
 
-    return registrationBean;
+        return registrationBean;
+    }
 }
