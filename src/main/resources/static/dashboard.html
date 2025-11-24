@@ -40,7 +40,7 @@
     }
 
     // Ejecuta protección al cargar
-    checkAuth();
+    await checkAuth();
 
     async function logout() {
       localStorage.removeItem("usuario");

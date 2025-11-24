@@ -21,9 +21,11 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login.html", "/registro.html", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/login", "/registro", "/css/**", "/js/**", "/images/**").permitAll()
                 .anyRequest().authenticated()
             )
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable())
             .addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

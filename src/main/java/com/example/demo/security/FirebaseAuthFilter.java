@@ -21,8 +21,9 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
 
         String header = request.getHeader("Authorization");
 
+        // Si no hay token, bloquea acceso
         if (header == null || !header.startsWith("Bearer ")) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.sendRedirect("/login"); // Redirige al login si no hay token
             return;
         }
 
@@ -32,7 +33,7 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
             request.setAttribute("firebaseUser", decodedToken);
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.sendRedirect("/login"); // Redirige si el token no es válido
             return;
         }
 

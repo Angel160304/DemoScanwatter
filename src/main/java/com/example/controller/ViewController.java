@@ -1,3 +1,5 @@
+package com.example.demo.controller;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -6,26 +8,26 @@ public class ViewController {
 
     @GetMapping("/")
     public String root() {
-        return "login"; // cuando entran al root, redirige al login
+        return "login";
     }
 
     @GetMapping("/login")
     public String login() {
-        return "login"; // acceso público
+        return "login";
     }
 
     @GetMapping("/registro")
     public String registro() {
-        return "registro"; // acceso público
+        return "registro";
     }
 
     @GetMapping("/index")
     public String index() {
-        return "index"; // requiere autenticación
+        return "index"; // Protegido por Security + Filter
     }
 
     @GetMapping("/dashboard")
     public String dashboard() {
-        return "dashboard"; // requiere autenticación
+        return "dashboard"; // Protegido por Security + Filter
     }
 }
