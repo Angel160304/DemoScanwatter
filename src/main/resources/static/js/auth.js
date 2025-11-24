@@ -65,23 +65,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         await auth.signInWithEmailAndPassword(email, pass);
-        const token = await auth.currentUser.getIdToken();
+        const tokenResult = await auth.currentUser.getIdTokenResult(true);
+        const token = tokenResult.token;
+        const role = tokenResult.claims.role || "USER";
 
+        // Validar token en el backend
         const response = await fetch(`${API_URL}/verify-token`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ idToken: token })
         });
 
-        const data = await response.json();
         if (!response.ok) {
+          const data = await response.json();
           const errorMessage = data.message || "Error al validar la sesión en el servidor.";
           alert(`Error de validación: ${errorMessage}`);
           return;
         }
 
+        // Guardar info localmente
         localStorage.setItem("usuario", email);
         localStorage.setItem("userToken", token);
+        localStorage.setItem("userRole", role); // Guardar rol del usuario
+
         window.location.href = "/index";
 
       } catch (err) {
@@ -96,5 +102,21 @@ document.addEventListener("DOMContentLoaded", () => {
 function logout() {
   localStorage.removeItem("usuario");
   localStorage.removeItem("userToken");
+  localStorage.removeItem("userRole");
   auth.signOut().then(() => window.location.href = "/login");
+}
+
+// ===== FUNCIONES DE CONTROL DE ROL =====
+// Verifica si el usuario es ADMIN
+async function esAdmin() {
+  const user = auth.currentUser;
+  if (!user) return false;
+  const tokenResult = await user.getIdTokenResult(true);
+  return tokenResult.claims.role === "ADMIN";
+}
+
+// Bloquea acciones sensibles si no es admin
+async function validarAccionAdmin(callback) {
+  if (await esAdmin()) callback();
+  else alert("No tienes permisos para realizar esta acción.");
 }

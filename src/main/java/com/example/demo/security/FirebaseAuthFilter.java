@@ -58,6 +58,13 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(auth);
             request.setAttribute("firebaseUser", decodedToken);
 
+            // 🔒 Validación extra: solo ADMIN puede modificar datos sensibles
+            if (path.startsWith("/api/flujo") && !role.equals("ADMIN") && request.getMethod().matches("POST|PUT|DELETE")) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.getWriter().write("Acceso denegado: solo ADMIN puede modificar datos.");
+                return; // Bloquea la petición
+            }
+
             // Continuar con la cadena de filtros
             filterChain.doFilter(request, response);
 
