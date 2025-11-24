@@ -7,11 +7,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @Component
 public class FirebaseAuthFilter extends OncePerRequestFilter {
@@ -26,7 +28,8 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
         // Permitir acceso público a login, registro y recursos estáticos
         if (path.equals("/login") || path.equals("/registro") 
             || path.startsWith("/css/") || path.startsWith("/js/") 
-            || path.startsWith("/images/")) {
+            || path.startsWith("/images/") || path.equals("/service-worker.js")
+            || path.equals("/manifest.json") || path.equals("/api/auth/verify-token")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -44,9 +47,13 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
         try {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
 
+            // Obtener rol del token (custom claim)
+            String role = (String) decodedToken.getClaims().getOrDefault("role", "USER");
+            SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
+
             // Crear autenticación para Spring Security
             UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(decodedToken.getUid(), null, null);
+                    new UsernamePasswordAuthenticationToken(decodedToken.getUid(), null, Collections.singleton(authority));
 
             SecurityContextHolder.getContext().setAuthentication(auth);
             request.setAttribute("firebaseUser", decodedToken);
