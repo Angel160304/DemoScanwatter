@@ -1,6 +1,6 @@
 package com.example.demo.config;
 
-import com.example.demo.security.FirebaseAuthenticationFilter;
+import com.example.demo.security.FirebaseAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,33 +10,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    private final FirebaseAuthenticationFilter firebaseFilter;
+    private final FirebaseAuthFilter firebaseAuthFilter;
 
-    public SecurityConfig(FirebaseAuthenticationFilter firebaseFilter) {
-        this.firebaseFilter = firebaseFilter;
+    public SecurityConfig(FirebaseAuthFilter firebaseAuthFilter) {
+        this.firebaseAuthFilter = firebaseAuthFilter;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // deshabilitamos CSRF
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // Rutas públicas
-                .requestMatchers(
-                    "/login.html",
-                    "/registro.html",
-                    "/css/**",
-                    "/js/**",
-                    "/images/**"
-                ).permitAll()
-                // Todo lo demás requiere autenticación
+                .requestMatchers("/login.html", "/registro.html", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
             )
-            // Deshabilitamos los formularios predeterminados de Spring Security
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable())
-            // Agregamos nuestro filtro de Firebase antes del filtro de autenticación de Spring
-            .addFilterBefore(firebaseFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
