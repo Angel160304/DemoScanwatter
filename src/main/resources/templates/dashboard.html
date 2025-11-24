@@ -40,23 +40,22 @@
       messagingSenderId: "19246885609",
       appId: "1:19246885609:web:c50bc7012698ddfcddde78"
     };
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const database = firebase.database();
     const dateInput = document.getElementById("datePicker");
 
-    // Verificar autenticación y rol
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
         window.location.replace("/login");
         return;
       }
 
-      // Obtener claims del token
       const tokenResult = await user.getIdTokenResult(true);
-      const role = tokenResult.claims.role || "USER"; // por defecto USER
 
-      // Habilitar selector solo si es ADMIN
-      if (role === "ADMIN") {
+      // Solo el administrador específico puede usar el selector
+      if (user.uid === "7NdfxdEsU9cSfuHH8cWWthcwGE03") {
         dateInput.disabled = false;
       } else {
         dateInput.disabled = true;

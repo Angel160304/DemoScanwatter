@@ -1,7 +1,7 @@
 // ====== CONFIGURACIÓN DE BACKEND ======
 const API_URL = "https://demoscanwatter.onrender.com/api/auth";
 const auth = firebase.auth();
-const database = firebase.database();
+const database = firebase.database(); // Firebase 8 funciona así
 
 // ===== VALIDACIÓN DE EMAIL Y PASSWORD =====
 function validarEmail(email) {
@@ -18,24 +18,21 @@ function validarPassword(password) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-
   // ===== REGISTRO =====
   const registroForm = document.querySelector("#registroForm");
   if (registroForm) {
     registroForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const email = document.querySelector("#regEmail").value.trim();
       const pass = document.querySelector("#regPassword").value.trim();
       const confirmPass = document.querySelector("#regConfirm").value.trim();
-
       if (!validarEmail(email)) return alert("El correo no es válido");
       if (!validarPassword(pass)) return;
       if (pass !== confirmPass) return alert("Las contraseñas no coinciden");
 
       try {
-        await firebase.auth().createUserWithEmailAndPassword(email, pass);
-        const token = await firebase.auth().currentUser.getIdToken();
+        await auth.createUserWithEmailAndPassword(email, pass);
+        const token = await auth.currentUser.getIdToken();
 
         const response = await fetch(`${API_URL}/register`, {
           method: "POST",
@@ -47,11 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const data = await response.text();
-        if (data.startsWith("Error")) {
-          alert(data);
-        } else {
-          window.location.href = "/login";
-        }
+        if (data.startsWith("Error")) alert(data);
+        else window.location.href = "/login";
       } catch (err) {
         console.error("Error en registro:", err);
         alert("Error al registrar");
@@ -64,16 +58,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const email = document.querySelector("#logEmail").value.trim();
       const pass = document.querySelector("#logPassword").value.trim();
-
       if (!validarEmail(email)) return alert("El correo no es válido");
       if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
       try {
-        await firebase.auth().signInWithEmailAndPassword(email, pass);
-        const token = await firebase.auth().currentUser.getIdToken();
+        await auth.signInWithEmailAndPassword(email, pass);
+        const token = await auth.currentUser.getIdToken();
 
         const response = await fetch(`${API_URL}/verify-token`, {
           method: "POST",
@@ -104,5 +96,5 @@ document.addEventListener("DOMContentLoaded", () => {
 function logout() {
   localStorage.removeItem("usuario");
   localStorage.removeItem("userToken");
-  firebase.auth().signOut().then(() => window.location.href = "/login");
+  auth.signOut().then(() => window.location.href = "/login");
 }
