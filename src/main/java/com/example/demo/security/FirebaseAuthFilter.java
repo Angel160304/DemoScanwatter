@@ -24,7 +24,7 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // Permitir acceso público a login, registro y recursos estáticos
-        if (path.startsWith("/login") || path.startsWith("/registro") 
+        if (path.equals("/login") || path.equals("/registro") 
             || path.startsWith("/css/") || path.startsWith("/js/") 
             || path.startsWith("/images/")) {
             filterChain.doFilter(request, response);
@@ -33,7 +33,7 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
 
         String header = request.getHeader("Authorization");
 
-        // Bloquear si no hay token
+        // Bloquear si no hay token o es incorrecto
         if (header == null || !header.startsWith("Bearer ")) {
             response.sendRedirect("/login"); // Redirige al login
             return;
@@ -45,19 +45,18 @@ public class FirebaseAuthFilter extends OncePerRequestFilter {
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
 
             // Crear autenticación para Spring Security
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    decodedToken.getUid(), null, null
-            );
+            UsernamePasswordAuthenticationToken auth =
+                    new UsernamePasswordAuthenticationToken(decodedToken.getUid(), null, null);
 
             SecurityContextHolder.getContext().setAuthentication(auth);
             request.setAttribute("firebaseUser", decodedToken);
 
+            // Continuar con la cadena de filtros
+            filterChain.doFilter(request, response);
+
         } catch (Exception e) {
             // Token inválido → redirige al login
             response.sendRedirect("/login");
-            return;
         }
-
-        filterChain.doFilter(request, response);
     }
 }
