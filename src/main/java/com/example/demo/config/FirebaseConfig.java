@@ -7,29 +7,31 @@ import com.google.firebase.auth.FirebaseAuth;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Configuration
-public class FirebaseConfig { // <-- Nombre de clase corregido
+public class FirebaseConfig { 
 
-    @Value("${firebase.sdk.path}")
-    private String firebaseSdkPath;
+    // 1. Inyectamos la cadena JSON completa (leída desde la variable de entorno de Render)
+    @Value("${firebase.credentials.json}")
+    private String firebaseCredentialsJson;
     
-    private final ResourceLoader resourceLoader;
-
-    public FirebaseConfig(ResourceLoader resourceLoader) {
-        this.resourceLoader = resourceLoader;
-    }
+    // El constructor y ResourceLoader ya no son necesarios si usamos la inyección de cadena.
+    // Puedes eliminar el constructor y la declaración de resourceLoader.
 
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
-        Resource resource = resourceLoader.getResource(firebaseSdkPath);
         
-        try (InputStream serviceAccount = resource.getInputStream()) {
+        // 2. Convertir la cadena JSON en un flujo de entrada (Input Stream)
+        InputStream serviceAccount = new ByteArrayInputStream(
+            firebaseCredentialsJson.getBytes(StandardCharsets.UTF_8)
+        );
+        
+        try (serviceAccount) {
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .build();
@@ -39,12 +41,11 @@ public class FirebaseConfig { // <-- Nombre de clase corregido
                 return FirebaseApp.initializeApp(options);
             }
             return FirebaseApp.getInstance();
-        }
+        } 
     }
 
     @Bean
     public FirebaseAuth firebaseAuth(FirebaseApp firebaseApp) {
-        // Asegura que Spring Security pueda inyectar FirebaseAuth
         return FirebaseAuth.getInstance(firebaseApp); 
     }
 }
