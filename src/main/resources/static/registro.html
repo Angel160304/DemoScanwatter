@@ -3,71 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro</title>
+  <title>Registro - ScanWatter</title>
   <link rel="stylesheet" href="css/style2.css">
+  <link rel="manifest" href="manifest.json?v=5">
 </head>
 <body>
-<form class="form" id="registroForm">
-  <p class="title">Registro</p>
-  <p class="message">Crea tu cuenta para acceder.</p>
 
-  <label>
-    <input id="regEmail" class="input" type="email" required>
-    <span>Email</span>
-  </label>
+  <form class="form" id="registroForm">
+    <p class="title">Registro</p>
+    <p class="message">Crea tu cuenta para acceder.</p>
 
-  <label>
-    <input id="regPassword" class="input" type="password" required>
-    <span>Contraseña</span>
-  </label>
+    <label>
+      <input id="regEmail" class="input" type="email" required>
+      <span>Email</span>
+    </label>
 
-  <label>
-    <input id="regConfirm" class="input" type="password" required>
-    <span>Confirmar Contraseña</span>
-  </label>
+    <label>
+      <input id="regPassword" class="input" type="password" required>
+      <span>Contraseña</span>
+    </label>
 
-  <button class="submit">Registrarme</button>
-  <p class="signin">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
-</form>
+    <label>
+      <input id="regConfirm" class="input" type="password" required>
+      <span>Confirmar Contraseña</span>
+    </label>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <button class="submit">Registrarme</button>
+    <p class="signin">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
+  </form>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
-    authDomain: "scanwatter-1bf04.firebaseapp.com",
-    databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
-    projectId: "scanwatter-1bf04",
-    storageBucket: "scanwatter-1bf04.firebasestorage.app",
-    messagingSenderId: "19246885609",
-    appId: "1:19246885609:web:c50bc7012698ddfcddde78",
-    measurementId: "G-GCR3RHEQQQ"
-  };
-  firebase.initializeApp(firebaseConfig);
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
-  document.getElementById("registroForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    
-    const email = document.getElementById("regEmail").value.trim();
-    const password = document.getElementById("regPassword").value.trim();
-    const confirmPass = document.getElementById("regConfirm").value.trim();
+  <script>
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "scanwatter-1bf04.firebaseapp.com",
+      databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
+      projectId: "scanwatter-1bf04",
+      storageBucket: "scanwatter-1bf04.firebasestorage.app",
+      messagingSenderId: "19246885609",
+      appId: "1:19246885609:web:c50bc7012698ddfcddde78",
+      measurementId: "G-GCR3RHEQQQ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-    if (password !== confirmPass) {
-      alert("Las contraseñas no coinciden");
-      return;
+    document.getElementById("registroForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPassword").value.trim();
+      const confirmPass = document.getElementById("regConfirm").value.trim();
+
+      if (password !== confirmPass) {
+        alert("Las contraseñas no coinciden");
+        return;
+      }
+
+      try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const token = await userCredential.user.getIdToken();
+        localStorage.setItem("userToken", token);
+        localStorage.setItem("usuario", email);
+        alert("Usuario registrado correctamente");
+        window.location.replace("/index.html");
+      } catch (error) {
+        alert("Error al registrar usuario: " + error.message);
+        console.error(error);
+      }
+    });
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js?v=5");
     }
+  </script>
 
-    try {
-      await firebase.auth().createUserWithEmailAndPassword(email, password);
-      alert("Usuario registrado correctamente");
-      window.location.href = "login.html";
-    } catch (error) {
-      alert("Error al registrar usuario");
-      console.error(error);
-    }
-  });
-</script>
 </body>
 </html>

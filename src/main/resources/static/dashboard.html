@@ -4,18 +4,17 @@
   <meta charset="UTF-8">
   <title>Dashboard - WaterMonitor</title>
 
+  <link rel="stylesheet" href="css/style4.css">
+
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <link rel="stylesheet" href="css/style4.css">
-
-  <!-- 🔒 Protección de acceso -->
   <script>
-    // 🔹 Config Firebase
+    // Config Firebase
     const firebaseConfig = {
-      apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
+      apiKey: "TU_API_KEY",
       authDomain: "scanwatter-1bf04.firebaseapp.com",
       databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
       projectId: "scanwatter-1bf04",
@@ -29,7 +28,7 @@
     const database = firebase.database();
 
     // 🔒 Bloqueo de acceso
-    auth.onAuthStateChanged(async (user) => {
+    auth.onAuthStateChanged(async user => {
       if (!user) {
         window.location.replace("/login.html");
       } else {
@@ -38,7 +37,7 @@
       }
     });
 
-    // 🔑 Logout unificado
+    // 🔑 Logout
     async function logout() {
       localStorage.removeItem("usuario");
       localStorage.removeItem("userToken");
@@ -47,7 +46,6 @@
     }
   </script>
 </head>
-
 <body class="dashboard-body">
 
   <div class="top-buttons">
@@ -72,40 +70,36 @@
     const ctx = document.getElementById("chart").getContext("2d");
     const chart = new Chart(ctx, {
       type: "line",
-      data: {
-        labels: [],
-        datasets: [{
-          label: "Litros por hora",
-          data: [],
-          fill: false,
-          tension: 0.2
-        }]
-      }
+      data: { labels: [], datasets: [{ label: "Litros por hora", data: [], fill: false, tension: 0.2 }] }
     });
 
-    function loadDay() {
+    async function loadDay() {
       const selectedDay = document.getElementById("datePicker").value;
-      const ref = firebase.database().ref(`consumo/${selectedDay}`);
+      const token = localStorage.getItem("userToken");
 
-      ref.off();
-      ref.on("value", snap => {
-        const data = snap.val();
-        if (!data) {
-          chart.data.labels = [];
-          chart.data.datasets[0].data = [];
-          chart.update();
-          return;
-        }
+      try {
+        const res = await fetch(`/api/flujo/datos?day=${selectedDay}`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error("Error en backend: " + res.status);
+        const data = await res.json();
 
-        const hours = Object.keys(data).sort((a, b) => Number(a) - Number(b));
+        const hours = Object.keys(data).sort((a,b) => Number(a)-Number(b));
         const liters = hours.map(h => data[h].litros || 0);
 
         chart.data.labels = hours.map(h => `${h}:00`);
         chart.data.datasets[0].data = liters;
         chart.update();
-      });
+
+      } catch (err) {
+        console.error(err);
+        chart.data.labels = [];
+        chart.data.datasets[0].data = [];
+        chart.update();
+      }
     }
 
+    // Inicializa con fecha actual
     document.getElementById("datePicker").valueAsDate = new Date();
     loadDay();
   </script>
