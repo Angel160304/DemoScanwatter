@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===== REGISTRO =====
   const registroForm = document.querySelector("#registroForm");
   if (registroForm) {
-    registroForm.addEventListener("submit", (e) => {
+    registroForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const email = document.querySelector("#regEmail").value.trim();
@@ -32,30 +32,39 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!validarPassword(pass)) return;
       if (pass !== confirmPass) return alert("Las contraseñas no coinciden");
 
-      fetch(`${API_URL}/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`
-      })
-      .then(res => res.text())
-      .then(data => {
+      try {
+        // 🔥 Registro en Firebase
+        await firebase.auth().createUserWithEmailAndPassword(email, pass);
+        const token = await firebase.auth().currentUser.getIdToken();
+
+        // 📡 Registro en backend con token
+        const response = await fetch(`${API_URL}/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": `Bearer ${token}`
+          },
+          body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`
+        });
+
+        const data = await response.text();
+
         if (data.startsWith("Error")) {
           alert(data);
         } else {
-          // Registro también en Firebase
-          firebase.auth().createUserWithEmailAndPassword(email, pass)
-            .then(() => window.location.href = "login.html")
-            .catch(err => console.error("Firebase Register Error:", err));
+          window.location.href = "login.html";
         }
-      })
-      .catch(err => alert("Error al registrar: " + err));
+      } catch (err) {
+        console.error("Error en registro:", err);
+        alert("Error al registrar");
+      }
     });
   }
 
   // ===== LOGIN =====
   const loginForm = document.querySelector("#loginForm");
   if (loginForm) {
-    loginForm.addEventListener("submit", (e) => {
+    loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const email = document.querySelector("#logEmail").value.trim();
@@ -64,29 +73,34 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!validarEmail(email)) return alert("El correo no es válido");
       if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
-      fetch(`${API_URL}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`
-      })
-      .then(res => res.text())
-      .then(data => {
+      try {
+        // 🔥 Primero inicia sesión con Firebase
+        await firebase.auth().signInWithEmailAndPassword(email, pass);
+        const token = await firebase.auth().currentUser.getIdToken();
+
+        // 📡 Luego valida en el backend enviando token
+        const response = await fetch(`${API_URL}/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": `Bearer ${token}`
+          },
+          body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`
+        });
+
+        const data = await response.text();
+
         if (data.startsWith("Error")) {
           alert(data);
         } else {
-          // Guarda sesión local
           localStorage.setItem("usuario", email);
-
-          // 🔥 Inicia sesión en Firebase
-          firebase.auth().signInWithEmailAndPassword(email, pass)
-            .then(() => window.location.href = "index.html")
-            .catch(err => {
-              console.error("Firebase Login Error:", err);
-              alert("Error al autenticar con Firebase.");
-            });
+          localStorage.setItem("userToken", token); // 🔹 Guarda token
+          window.location.href = "index.html";
         }
-      })
-      .catch(err => alert("Error al iniciar sesión: " + err));
+      } catch (err) {
+        console.error("Firebase Login Error:", err);
+        alert("Error al autenticar, verifica tus credenciales.");
+      }
     });
   }
 });
@@ -94,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // ===== FUNCIÓN GLOBAL PARA CERRAR SESIÓN =====
 function logout() {
   localStorage.removeItem("usuario");
+  localStorage.removeItem("userToken");
   firebase.auth().signOut().then(() => {
     window.location.href = "login.html";
   });

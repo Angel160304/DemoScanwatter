@@ -26,17 +26,21 @@
 
     firebase.initializeApp(firebaseConfig);
 
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) {
-        window.location.replace("login.html");
-      }
-    });
-
-    function logout() {
-      firebase.auth().signOut().then(() => {
-        window.location.replace("login.html");
-      });
+  firebase.auth().onAuthStateChanged(async (user) => {
+    if (!user) {
+      window.location.replace("login.html");
+    } else {
+      const token = await user.getIdToken();
+      localStorage.setItem("userToken", token);
     }
+  });
+
+  async function logout() {
+    localStorage.removeItem("usuario");
+    localStorage.removeItem("userToken");
+    await firebase.auth().signOut();
+    window.location.href = "login.html";
+  }
   </script>
 </head>
 

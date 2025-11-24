@@ -9,15 +9,17 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())  // Desactiva CSRF para pruebas
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()  // Permite todo sin login
-            )
-            .formLogin(form -> form.disable())  // ❌ Desactiva el login feo de Spring
-            .httpBasic(basic -> basic.disable()); // ❌ Desactiva autenticación básica
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/login.html", "/css/**", "/js/**", "/images/**").permitAll()
+            .anyRequest().authenticated()
+        )
+        .formLogin(form -> form.disable())
+        .httpBasic(basic -> basic.disable());
 
-        return http.build();
-    }
+    return http.build();
+}
+
 }
