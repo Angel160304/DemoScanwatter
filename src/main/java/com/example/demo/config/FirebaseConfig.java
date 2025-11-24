@@ -1,50 +1,50 @@
 package com.example.demo.config;
 
-import org.springframework.context.annotation.Configuration;
-import jakarta.annotation.PostConstruct;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import org.springframework.core.io.ClassPathResource;
+import com.google.firebase.auth.FirebaseAuth;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 @Configuration
-public class FirebaseConfig {
+public class FirebaseConfig { // <-- Nombre de clase corregido
 
-    @PostConstruct
-    public void init() {
-        try {
-            InputStream serviceAccount;
+    @Value("${firebase.sdk.path}")
+    private String firebaseSdkPath;
+    
+    private final ResourceLoader resourceLoader;
 
-            // Ruta del Secret File en Render
-            String ruta = "/etc/secrets/scanwatter-1bf04-firebase-adminsdk-fbsvc-06b9d41476.json";
-            File secretFile = new File(ruta);
+    public FirebaseConfig(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
 
-            if (secretFile.exists()) {
-                serviceAccount = new FileInputStream(secretFile);
-                System.out.println("📡 Usando clave Firebase desde Render Secret File");
-            } else {
-                // Si estás ejecutando local
-                serviceAccount = new ClassPathResource("firebase-key.json").getInputStream();
-                System.out.println("💻 Usando clave Firebase local desde resources");
-            }
-
+    @Bean
+    public FirebaseApp firebaseApp() throws IOException {
+        Resource resource = resourceLoader.getResource(firebaseSdkPath);
+        
+        try (InputStream serviceAccount = resource.getInputStream()) {
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .build();
-
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .build();
+            
+            // Inicializa la aplicación si no existe
             if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseApp.initializeApp(options);
-                System.out.println("🔥 Firebase inicializado correctamente");
+                return FirebaseApp.initializeApp(options);
             }
-
-        } catch (Exception e) {
-            System.out.println("❌ Error inicializando Firebase: " + e.getMessage());
-            e.printStackTrace();
+            return FirebaseApp.getInstance();
         }
+    }
+
+    @Bean
+    public FirebaseAuth firebaseAuth(FirebaseApp firebaseApp) {
+        // Asegura que Spring Security pueda inyectar FirebaseAuth
+        return FirebaseAuth.getInstance(firebaseApp); 
     }
 }
