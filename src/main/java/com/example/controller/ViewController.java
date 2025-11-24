@@ -1,15 +1,11 @@
-package com.example.demo.controller;
+package com.example.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 public class ViewController {
-
-    @GetMapping("/")
-    public String rootRedirect() {
-        return "redirect:/index";
-    }
 
     @GetMapping("/login")
     public String login() {

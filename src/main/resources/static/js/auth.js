@@ -1,103 +1,119 @@
+// ====== CONFIGURACIÓN DE BACKEND ======
 const API_URL = "https://demoscanwatter.onrender.com/api/auth";
-const auth = firebase.auth();
-const database = firebase.database();
 
-// ===== VALIDACIÓN EMAIL/PASSWORD =====
+// ===== VALIDACIÓN DE EMAIL Y PASSWORD (Mantenido) =====
 function validarEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+
 function validarPassword(password) {
-  if (password.length < 8) return alert("La contraseña debe tener al menos 8 caracteres.");
-  if (!/[a-z]/.test(password)) return alert("Debe incluir al menos una letra minúscula.");
-  if (!/[A-Z]/.test(password)) return alert("Debe incluir al menos una letra mayúscula.");
-  if (!/[0-9]/.test(password)) return alert("Debe incluir un número.");
-  if (!/[^A-Za-z0-9]/.test(password)) return alert("Debe incluir un carácter especial.");
-  return true;
+  if (password.length < 8) return alert("La contraseña debe tener al menos 8 caracteres.");
+  if (!/[a-z]/.test(password)) return alert("Debe incluir al menos una letra minúscula.");
+  if (!/[A-Z]/.test(password)) return alert("Debe incluir al menos una letra mayúscula.");
+  if (!/[0-9]/.test(password)) return alert("Debe incluir al menos un número.");
+  if (!/[^A-Za-z0-9]/.test(password)) return alert("Debe incluir un carácter especial.");
+  return true;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    
+  // ===== REGISTRO (Mantenido) =====
+  const registroForm = document.querySelector("#registroForm");
+  if (registroForm) {
+    registroForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-  // ===== REGISTRO =====
-  const registroForm = document.querySelector("#registroForm");
-  if (registroForm) {
-    registroForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.querySelector("#regEmail").value.trim();
-      const pass = document.querySelector("#regPassword").value.trim();
-      const confirmPass = document.querySelector("#regConfirm").value.trim();
+      const email = document.querySelector("#regEmail").value.trim();
+      const pass = document.querySelector("#regPassword").value.trim();
+      const confirmPass = document.querySelector("#regConfirm").value.trim();
 
-      if (!validarEmail(email)) return alert("Correo no válido");
-      if (!validarPassword(pass)) return;
-      if (pass !== confirmPass) return alert("Contraseñas no coinciden");
+      if (!validarEmail(email)) return alert("El correo no es válido");
+      if (!validarPassword(pass)) return;
+      if (pass !== confirmPass) return alert("Las contraseñas no coinciden");
 
-      try {
-        await auth.createUserWithEmailAndPassword(email, pass);
-        const token = await auth.currentUser.getIdToken();
-        const response = await fetch(`${API_URL}/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded", "Authorization": `Bearer ${token}` },
-          body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`
-        });
-        const data = await response.text();
-        if (data.startsWith("Error")) alert(data);
-        else window.location.href = "/login";
-      } catch (err) {
-        console.error(err);
-        alert("Error al registrar");
-      }
-    });
-  }
+      try {
+        // 🔥 Registro en Firebase
+        await firebase.auth().createUserWithEmailAndPassword(email, pass);
+        const token = await firebase.auth().currentUser.getIdToken();
 
-  // ===== LOGIN =====
-  const loginForm = document.querySelector("#loginForm");
-  if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.querySelector("#logEmail").value.trim();
-      const pass = document.querySelector("#logPassword").value.trim();
-      if (!validarEmail(email)) return alert("Correo no válido");
-      if (pass.length < 6) return alert("Contraseña demasiado corta");
+        // 📡 Registro en backend con token (Se mantiene tu lógica original)
+        const response = await fetch(`${API_URL}/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": `Bearer ${token}`
+          },
+          body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`
+        });
 
-      try {
-        await auth.signInWithEmailAndPassword(email, pass);
-        const token = await auth.currentUser.getIdToken();
+        const data = await response.text();
 
-        const response = await fetch(`${API_URL}/verify-token`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ idToken: token })
-        });
+        if (data.startsWith("Error")) {
+          alert(data);
+        } else {
+          window.location.href = "/login"; // redirige al login
+        }
+      } catch (err) {
+        console.error("Error en registro:", err);
+        alert("Error al registrar");
+      }
+    });
+  }
 
-        if (!response.ok) {
-          const data = await response.json();
-          alert(`Error de validación: ${data.message || "Token inválido"}`);
-          return;
-        }
+  // ===== LOGIN (MODIFICADO) =====
+  const loginForm = document.querySelector("#loginForm");
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-        // Guardar datos localmente
+      const email = document.querySelector("#logEmail").value.trim();
+      const pass = document.querySelector("#logPassword").value.trim();
+
+      if (!validarEmail(email)) return alert("El correo no es válido");
+      if (pass.length < 6) return alert("La contraseña es demasiado corta");
+
+      try {
+        // 🔥 1. Login en Firebase
+        await firebase.auth().signInWithEmailAndPassword(email, pass);
+        const token = await firebase.auth().currentUser.getIdToken();
+
+        // 📡 2. Validar token en backend y crear la sesión de Spring Security
+        //    *** Importante: Usamos /verify-token y enviamos el token en JSON ***
+        const response = await fetch(`${API_URL}/verify-token`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json", // Cambiado a JSON
+          },
+          body: JSON.stringify({ idToken: token }) // Enviamos el token en el cuerpo
+        });
+        
+        const data = await response.json(); // Leemos como JSON para errores o éxito
+
+        if (!response.ok) { // Si el servidor retorna un error (401, 500, etc.)
+            const errorMessage = data.message || "Error al validar la sesión en el servidor.";
+            alert(`Error de validación: ${errorMessage}`);
+            console.error("Server Token Error:", data);
+            return; 
+        } 
+        
+        // 3. Login exitoso y sesión de Spring establecida
         localStorage.setItem("usuario", email);
-        localStorage.setItem("userToken", token);
-
-        // Obtener rol y UID
-        const tokenResult = await auth.currentUser.getIdTokenResult();
-        localStorage.setItem("userRole", tokenResult.claims.role || "USER");
-        localStorage.setItem("userUID", auth.currentUser.uid);
-
-        window.location.href = "/index";
-
-      } catch (err) {
-        console.error("Firebase Login Error:", err);
-        alert("Error al autenticar, verifica tus credenciales.");
-      }
-    });
-  }
+        localStorage.setItem("userToken", token); 
+        window.location.href = "/index"; // Redirige a la ruta protegida
+        
+      } catch (err) {
+        console.error("Firebase Login Error:", err);
+        alert("Error al autenticar, verifica tus credenciales.");
+      }
+    });
+  }
 });
 
-// ===== CERRAR SESIÓN =====
+// ===== FUNCIÓN GLOBAL PARA CERRAR SESIÓN (Mantenida) =====
 function logout() {
-  localStorage.removeItem("usuario");
-  localStorage.removeItem("userToken");
-  localStorage.removeItem("userRole");
-  localStorage.removeItem("userUID");
-  auth.signOut().then(() => window.location.href = "/login");
+  localStorage.removeItem("usuario");
+  localStorage.removeItem("userToken");
+  firebase.auth().signOut().then(() => {
+    window.location.href = "/login"; // redirige al login
+  });
 }
