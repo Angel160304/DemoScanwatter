@@ -1,16 +1,16 @@
-// com.example.demo.config.SecurityConfig.java
-
 package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig { // Nombre de clase corregido
+@EnableMethodSecurity // 💡 HABILITA EL USO DE @PreAuthorize EN LOS CONTROLADORES
+public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -27,21 +27,21 @@ public class SecurityConfig { // Nombre de clase corregido
                     "/service-worker.js", 
                     "/manifest.json",
                     "/api/auth/verify-token"
+                    // Nota: Si creas un endpoint para asignar roles temporalmente, agrégalo aquí.
                 ).permitAll()
                 
-                // 2. Proteger: TODAS las demás rutas, incluyendo "/", "/index", "/dashboard",
-                //    requieren autenticación mediante la sesión de Spring Security.
+                // 2. Proteger: TODAS las demás rutas requieren autenticación.
                 .anyRequest().authenticated()
             )
-            // 3. Configuración de Login: Redirige aquí si se intenta acceder a una ruta protegida sin sesión.
+            // 3. Configuración de Login: Redirige si se accede a ruta protegida sin sesión.
             .formLogin((form) -> form
-                .loginPage("/login") // La página de login que tienes en tu controlador
+                .loginPage("/login") 
                 .permitAll()
             )
-            // 4. Configuración de Logout (para que Spring sepa cómo manejar el cierre de sesión)
+            // 4. Configuración de Logout
             .logout((logout) -> logout.permitAll());
         
-        // Es necesario deshabilitar CSRF si tu login es 100% API-based o si necesitas que funcione con POSTs simples.
+        // Deshabilitar CSRF
         http.csrf(csrf -> csrf.disable()); 
 
         return http.build();
