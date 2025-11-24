@@ -40,16 +40,20 @@
 
     await checkAuth();
 
+    // ====== NUEVO: Verificar rol ADMIN para habilitar selector de fecha ======
     async function checkAdmin() {
       const user = auth.currentUser;
       if (!user) return;
 
-      const token = await user.getIdTokenResult();
-      const role = token.claims.role || "USER";
+      const tokenResult = await user.getIdTokenResult();
+      const role = tokenResult.claims.role || "USER";
 
       if (role !== "ADMIN") {
-        // Oculta selector de fecha si no es admin
-        document.getElementById("fechaAdmin").style.display = "none";
+        // Solo el admin puede interactuar con el selector
+        document.getElementById("datePicker").disabled = true;
+
+        // Si quieres ocultar todo el contenedor del selector para usuarios normales:
+        // document.getElementById("fechaAdmin").style.display = "none";
       }
     }
 
@@ -70,13 +74,10 @@
 
   <div class="dashboard-container">
     <h2>Dashboard - Consumo de Agua</h2>
-
-    <!-- Selector de fecha solo para admin -->
     <div class="selector-fecha" id="fechaAdmin">
       <label>Selecciona un día:</label>
       <input type="date" id="datePicker" onchange="loadDay()">
     </div>
-
     <div class="chart-container">
       <canvas id="chart"></canvas>
     </div>
