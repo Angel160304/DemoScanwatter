@@ -16,7 +16,7 @@ public class SecurityConfig {
         this.firebaseAuthFilter = firebaseAuthFilter;
     }
 
-   @Bean
+  @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .csrf(csrf -> csrf.disable())
@@ -25,7 +25,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .anyRequest().authenticated()
         )
         .formLogin(form -> form.disable())
-        .httpBasic(basic -> basic.disable());
+        .httpBasic(basic -> basic.disable())
+        .addFilterBefore(firebaseAuthFilter, UsernamePasswordAuthenticationFilter.class); // ✅ aquí se agrega
 
     return http.build();
 }

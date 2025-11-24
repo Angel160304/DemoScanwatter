@@ -1,28 +1,23 @@
-package com.example.demo.controller;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-
 @Controller
 public class ViewController {
 
     @GetMapping("/login")
     public String login() {
-        return "login"; // acceso público
+        return "login"; // público (login.html sigue en static/)
     }
 
     @GetMapping("/registro")
     public String registro() {
-        return "registro"; // acceso público
+        return "registro"; // público (registro.html sigue en static/)
     }
 
     @GetMapping("/index")
-public String index() {
-    return "index"; // ahora busca templates/index.html
-}
+    public String index() {
+        return "index"; // ahora busca templates/index.html
+    }
 
-@GetMapping("/dashboard")
-public String dashboard() {
-    return "dashboard"; // ahora busca templates/dashboard.html
-}
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "dashboard"; // ahora busca templates/dashboard.html
+    }
 }
