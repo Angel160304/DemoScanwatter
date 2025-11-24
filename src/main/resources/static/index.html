@@ -14,7 +14,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
-  <!-- 🟢 Protección de acceso -->
+  <!-- 🔒 Protección de acceso -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
@@ -29,15 +29,17 @@
 
     firebase.initializeApp(firebaseConfig);
 
-    // VALIDACIÓN DE SESIÓN
-    document.addEventListener("DOMContentLoaded", () => {
-      const usuario = localStorage.getItem("usuario");
-      firebase.auth().onAuthStateChanged(user => {
-        if (!user || !usuario) {
-          window.location.href = "login.html";
-        }
-      });
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        window.location.replace("login.html");
+      }
     });
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.replace("login.html");
+      });
+    }
   </script>
 
 </head>
