@@ -6,28 +6,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ViewController {
 
-    @GetMapping("/")
-    public String root() {
-        return "login";
-    }
-
     @GetMapping("/login")
     public String login() {
-        return "login";
+        return "login"; // acceso público
     }
 
     @GetMapping("/registro")
     public String registro() {
-        return "registro";
+        return "registro"; // acceso público
     }
 
     @GetMapping("/index")
     public String index() {
-        return "index"; // Protegido por Security + Filter
+        return "index"; // requiere autenticación
     }
 
     @GetMapping("/dashboard")
     public String dashboard() {
-        return "dashboard"; // Protegido por Security + Filter
+        return "dashboard"; // requiere autenticación
     }
 }
