@@ -17,14 +17,17 @@ public class AuthController {
     @Autowired
     private FirebaseAuthService authService;
 
-    // Puedes dejar el registro si tu frontend lo usa como API
+    // ===== REGISTRO (si quieres seguir usando desde frontend) =====
     @PostMapping("/register")
     public String register(@RequestParam String email, @RequestParam String password) {
-        // Asumiendo que esta lógica llama a la API REST de Firebase o usa Admin SDK
+        // Puedes implementar aquí la lógica de registro con Firebase JS en frontend
         return "Método de registro pendiente de implementar con Admin SDK o solo en cliente.";
     }
 
+    /*
     // ===== ENDPOINT PARA VALIDAR EL TOKEN Y CREAR LA SESIÓN DE SPRING SECURITY =====
+    // Comentado para desactivar la validación de token y evitar bucles de redirección
+
     @PostMapping("/verify-token")
     public ResponseEntity<?> verifyTokenAndLogin(@RequestBody Map<String, String> payload) {
         String idToken = payload.get("idToken");
@@ -42,4 +45,5 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token de Firebase inválido: " + e.getMessage());
         }
     }
+    */
 }

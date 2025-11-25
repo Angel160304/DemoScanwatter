@@ -2,16 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - ScanWatter</title>
   <link rel="stylesheet" href="css/style4.css">
 
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
+    // Configuración de Firebase
     const firebaseConfig = {
       apiKey: "TU_API_KEY",
       authDomain: "scanwatter-1bf04.firebaseapp.com",
@@ -22,30 +23,49 @@
       appId: "1:19246885609:web:c50bc7012698ddfcddde78"
     };
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
     const database = firebase.database();
 
-    // ===== Validar sesión antes de mostrar dashboard =====
-    async function checkAuth() {
-      return new Promise(resolve => {
-        auth.onAuthStateChanged(async user => {
-          if (!user) {
-            window.location.href = "/login.html"; // Redirige al login si no hay usuario
-          } else {
-            const token = await user.getIdToken();
-            localStorage.setItem("userToken", token);
-            resolve();
-          }
-        });
+    // Función para leer datos del día seleccionado
+    function loadDay() {
+      const date = document.getElementById("datePicker").value;
+      if (!date) return;
+
+      const ref = database.ref(`datos/${date}`);
+      ref.once('value', snapshot => {
+        const data = snapshot.val() || {};
+        renderChart(data);
       });
     }
 
-    await checkAuth();
+    // Función para renderizar chart
+    function renderChart(data) {
+      const labels = Object.keys(data);
+      const values = Object.values(data);
 
+      const ctx = document.getElementById('chart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Consumo de Agua',
+            data: values,
+            borderColor: 'blue',
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+
+    // Función de logout (solo Firebase, opcional)
     function logout() {
-      localStorage.removeItem("usuario");
-      localStorage.removeItem("userToken");
-      auth.signOut().then(() => window.location.href = "/login.html");
+      firebase.auth().signOut().then(() => {
+        alert("Sesión cerrada");
+      });
     }
   </script>
 </head>
@@ -64,12 +84,9 @@
       <input type="date" id="datePicker" onchange="loadDay()">
     </div>
 
-    <div class="chart-container">
+    <div class="chart-container" style="height:400px;">
       <canvas id="chart"></canvas>
     </div>
   </div>
-
-  <script src="js/script.js"></script>
-  <script src="js/auth.js"></script>
 </body>
 </html>
