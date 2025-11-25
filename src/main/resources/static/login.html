@@ -45,37 +45,65 @@
     const auth = firebase.auth();
 
     // 🔹 LIMPIAR TOKEN VIEJO para evitar bucles
-    localStorage.removeItem("userToken");
+    // localStorage.removeItem("userToken"); // COMENTADO: ya no usamos token
     localStorage.removeItem("usuario");
 
-    // 🔹 REDIRECCIÓN SEGURA AL CARGAR LA PÁGINA
+    // 🔹 COMENTADO: ya no validamos token con backend
+    /*
     auth.onAuthStateChanged(async user => {
       if (user) {
         try {
           const token = await user.getIdToken();
-          // Opcional: validar token con backend antes de redirigir
           const response = await fetch("/api/auth/verify-token", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({idToken: token})
           });
           if (response.ok) {
-            window.location.replace("/dashboard"); // Si token válido, ir a dashboard
-          } else {
-            auth.signOut(); // Token inválido → cerrar sesión Firebase
-          }
-        } catch(e) {
-          console.error("Error al validar token:", e);
-          auth.signOut();
-        }
+            window.location.replace("/dashboard");
+          } else { auth.signOut(); }
+        } catch(e) { console.error("Error al validar token:", e); auth.signOut(); }
       }
     });
+    */
 
-    if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("/service-worker.js?v=5");
-    }
+    document.addEventListener("DOMContentLoaded", () => {
+      const loginForm = document.querySelector("#loginForm");
+      if (loginForm) {
+        loginForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const email = document.querySelector("#logEmail").value.trim();
+          const pass = document.querySelector("#logPassword").value.trim();
+
+          if (pass.length < 6) return alert("La contraseña es demasiado corta");
+
+          try {
+            await firebase.auth().signInWithEmailAndPassword(email, pass);
+
+            // 🔹 COMENTADO: ya no enviamos token al backend
+            /*
+            const token = await firebase.auth().currentUser.getIdToken();
+            const response = await fetch(`${API_URL}/verify-token`, {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify({ idToken: token })
+            });
+            */
+
+            localStorage.setItem("usuario", email);
+
+            // REDIRECCIÓN SOLO DESPUÉS DE LOGIN
+            window.location.href = "/dashboard";
+
+          } catch (err) {
+            console.error("Firebase Login Error:", err);
+            alert("Error al autenticar, verifica tus credenciales.");
+          }
+        });
+      }
+    });
   </script>
 
-  <script src="/js/auth.js"></script>
 </body>
 </html>
