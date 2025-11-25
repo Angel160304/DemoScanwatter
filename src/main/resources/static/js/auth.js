@@ -1,7 +1,7 @@
 // ====== CONFIGURACIÓN DE BACKEND ======
 const API_URL = "https://demoscanwatter.onrender.com/api/auth";
 
-// ===== VALIDACIÓN DE EMAIL Y PASSWORD (Mantenido) =====
+// ===== VALIDACIÓN DE EMAIL Y PASSWORD =====
 function validarEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -89,12 +89,11 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        // Guardamos datos en localStorage
         localStorage.setItem("usuario", email);
         localStorage.setItem("userToken", token);
 
-        // REDIRECCIÓN POST LOGIN: Solo aquí se redirige
-        window.location.href = "/index";
+        // REDIRECCIÓN SOLO DESPUÉS DE LOGIN
+        window.location.href = "/dashboard";
 
       } catch (err) {
         console.error("Firebase Login Error:", err);
@@ -104,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ===== FUNCIÓN GLOBAL PARA CERRAR SESIÓN =====
+// ===== CERRAR SESIÓN =====
 function logout() {
   localStorage.removeItem("usuario");
   localStorage.removeItem("userToken");
@@ -112,12 +111,3 @@ function logout() {
     window.location.href = "/login.html";
   });
 }
-
-/* ===== NOTA IMPORTANTE =====
- * Antes se tenía un bloque de auth.onAuthStateChanged() que redirigía automáticamente
- * si el usuario ya estaba logueado. Esto causaba bucles de redirección al abrir
- * la URL desde otros dispositivos o al escanear el QR.
- *
- * Ahora, la redirección solo ocurre después de validar exitosamente el login en el formulario,
- * evitando así el error ERR_TOO_MANY_REDIRECTS.
- */

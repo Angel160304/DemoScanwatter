@@ -22,34 +22,20 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    async function checkAuth() {
-      return new Promise(resolve => {
-        auth.onAuthStateChanged(async user => {
-          if (!user) {
-            window.location.replace("/login");
-          } else {
-            const token = await user.getIdToken();
-            localStorage.setItem("userToken", token);
-            resolve();
-          }
-        });
-      });
-    }
-
-    await checkAuth();
+    // Index es pública, pero opcionalmente podemos limpiar tokens viejos
+    localStorage.removeItem("usuario");
+    localStorage.removeItem("userToken");
 
     function logout() {
-      localStorage.removeItem("userToken");
       localStorage.removeItem("usuario");
-      auth.signOut().then(() => window.location.replace("/login"));
+      localStorage.removeItem("userToken");
+      auth.signOut().then(() => window.location.href = "/login.html");
     }
   </script>
 </head>
 <body>
   <nav class="navbar">
     <div class="logo">ScanWatter</div>
-
-    <!-- BOTÓN HAMBURGUESA -->
     <div class="menu-toggle" onclick="toggleMenu()">☰</div>
 
     <ul class="nav-links">
@@ -66,7 +52,6 @@
   <script src="js/script.js"></script>
   <script src="js/auth.js"></script>
 
-  <!-- FUNCIÓN PARA RESPONDER AL BOTÓN -->
   <script>
     function toggleMenu() {
       document.querySelector('.nav-links').classList.toggle('active');

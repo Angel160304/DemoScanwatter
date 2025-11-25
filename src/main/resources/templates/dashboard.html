@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - ScanWatter</title>
   <link rel="stylesheet" href="css/style4.css">
 
@@ -20,16 +21,16 @@
       messagingSenderId: "19246885609",
       appId: "1:19246885609:web:c50bc7012698ddfcddde78"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
 
+    // ===== Validar sesión antes de mostrar dashboard =====
     async function checkAuth() {
       return new Promise(resolve => {
         auth.onAuthStateChanged(async user => {
           if (!user) {
-            window.location.replace("/login");
+            window.location.href = "/login.html"; // Redirige al login si no hay usuario
           } else {
             const token = await user.getIdToken();
             localStorage.setItem("userToken", token);
@@ -44,14 +45,14 @@
     function logout() {
       localStorage.removeItem("usuario");
       localStorage.removeItem("userToken");
-      auth.signOut().then(() => window.location.replace("/login"));
+      auth.signOut().then(() => window.location.href = "/login.html");
     }
   </script>
 </head>
 
 <body class="dashboard-body">
   <div class="top-buttons">
-    <button onclick="window.location.href='/index'">Back</button>
+    <button onclick="window.location.href='/index.html'">Back</button>
     <button onclick="logout()">Cerrar Sesión</button>
   </div>
 

@@ -13,11 +13,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // 1️⃣ Rutas públicas
             .authorizeHttpRequests(requests -> requests
+                // Rutas públicas
                 .requestMatchers(
-                    "/login.html",    // Login público en static
-                    "/registro.html", // Registro público si existe
+                    "/login.html",
+                    "/registro.html",
+                    "/index.html",
                     "/js/**",
                     "/css/**",
                     "/images/**",
@@ -27,16 +28,13 @@ public class SecurityConfig {
                 ).permitAll()
                 .anyRequest().authenticated() // Todo lo demás protegido
             )
-            // 2️⃣ Configuración de login
             .formLogin(form -> form
-                .loginPage("/login.html") // Apunta al login en static
+                .loginPage("/login.html")
                 .permitAll()
             )
-            // 3️⃣ Configuración de logout
             .logout(logout -> logout.permitAll());
 
-        // 4️⃣ Deshabilitar CSRF si tu login es API-based
-        http.csrf(csrf -> csrf.disable());
+        http.csrf(csrf -> csrf.disable()); // Para login API
 
         return http.build();
     }

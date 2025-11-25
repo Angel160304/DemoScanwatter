@@ -8,7 +8,7 @@ public class ViewController {
 
     @GetMapping("/")
     public String rootRedirect() {
-        return "redirect:/index.html"; // Redirige a index.html
+        return "redirect:/index.html"; // página pública
     }
 
     @GetMapping("/index")
@@ -18,13 +18,13 @@ public class ViewController {
 
     @GetMapping("/dashboard")
     public String dashboard() {
-        return "dashboard"; // dashboard.html protegido
+        return "dashboard"; // dashboard protegido
     }
-    
+
     @GetMapping("/registro")
     public String registro() {
         return "registro"; // registro.html en static
     }
 
-    // ❌ NO mapear /login en controlador, solo usar /login.html en static
+    // ❌ NO mapear /login, solo usar /login.html
 }
