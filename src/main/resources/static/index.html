@@ -22,7 +22,7 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // Index es pública, pero opcionalmente podemos limpiar tokens viejos
+    // Index es público
     localStorage.removeItem("usuario");
     localStorage.removeItem("userToken");
 
@@ -34,6 +34,7 @@
   </script>
 </head>
 <body>
+  <!-- NAV -->
   <nav class="navbar">
     <div class="logo">ScanWatter</div>
     <div class="menu-toggle" onclick="toggleMenu()">☰</div>
@@ -47,7 +48,30 @@
     </ul>
   </nav>
 
-  <footer class="footer"></footer>
+  <!-- 🟢 CONTENIDO REAL -->
+  <section id="inicio" class="section">
+    <h1>Bienvenido a ScanWatter</h1>
+    <p>Plataforma inteligente para el monitoreo de recursos hídricos.</p>
+  </section>
+
+  <section id="funciona" class="section">
+    <h2>¿Cómo funciona?</h2>
+    <p>Utilizamos sensores IoT para recopilar información en tiempo real sobre el consumo de agua.</p>
+  </section>
+
+  <section id="beneficios" class="section">
+    <h2>Beneficios</h2>
+    <ul>
+      <li>Monitoreo en tiempo real</li>
+      <li>Detección de fugas</li>
+      <li>Ahorro de recursos</li>
+      <li>Gestión inteligente</li>
+    </ul>
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 ScanWatter - Todos los derechos reservados</p>
+  </footer>
 
   <script src="js/script.js"></script>
   <script src="js/auth.js"></script>
