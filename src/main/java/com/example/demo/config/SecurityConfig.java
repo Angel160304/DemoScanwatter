@@ -1,5 +1,3 @@
-// com.example.demo.config.SecurityConfig.java
-
 package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
@@ -10,30 +8,35 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig { // Nombre de clase corregido
+public class SecurityConfig {
 
     @Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .authorizeHttpRequests((requests) -> requests
-    .requestMatchers(
-        "/", "/index", "/login.html", "/registro", "/js/**", "/css/**", "/images/**"
-    ).permitAll()
-    .requestMatchers("/dashboard").authenticated()
-    .anyRequest().permitAll()
-)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((requests) -> requests
+                // Rutas públicas: login y registro ahora en static
+                .requestMatchers(
+                    "/login.html",
+                    "/registro.html",
+                    "/js/**",
+                    "/css/**",
+                    "/images/**",
+                    "/service-worker.js",
+                    "/manifest.json",
+                    "/api/auth/verify-token"
+                ).permitAll()
+                // Cualquier otra ruta requiere autenticación
+                .anyRequest().authenticated()
+            )
+            .formLogin((form) -> form
+                // Apunta directamente al archivo static
+                .loginPage("/login.html")
+                .permitAll()
+            )
+            .logout((logout) -> logout.permitAll());
 
-// Ya no uses formLogin()
+        http.csrf(csrf -> csrf.disable());
 
-        .formLogin((form) -> form
-            .loginPage("/login")
-            .defaultSuccessUrl("/dashboard", true) // Después del login va al dashboard
-            .permitAll()
-        )
-        .logout((logout) -> logout.permitAll());
-
-    http.csrf(csrf -> csrf.disable());
-
-    return http.build();
-}
+        return http.build();
+    }
 }
