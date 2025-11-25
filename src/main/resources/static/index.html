@@ -1,85 +1,178 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ScanWatter - Monitoreo Inteligente de Agua</title>
-  <link rel="stylesheet" href="css/style3.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScanWatter - Monitoreo Inteligente de Agua</title>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style3.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#2E7D32">
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "TU_API_KEY",
-      authDomain: "scanwatter-1bf04.firebaseapp.com",
-      databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
-      projectId: "scanwatter-1bf04",
-      storageBucket: "scanwatter-1bf04.firebasestorage.app",
-      messagingSenderId: "19246885609",
-      appId: "1:19246885609:web:c50bc7012698ddfcddde78"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
-    // Index es público
+<script>
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "scanwatter-1bf04.firebaseapp.com",
+    databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
+    projectId: "scanwatter-1bf04",
+    storageBucket: "scanwatter-1bf04.firebasestorage.app",
+    messagingSenderId: "19246885609",
+    appId: "1:19246885609:web:c50bc7012698ddfcddde78"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  // Limpia sesión SOLO si venimos desde login
+  localStorage.removeItem("usuario");
+  localStorage.removeItem("userToken");
+
+  // Oculta dashboard si no hay sesión
+  auth.onAuthStateChanged((user) => {
+    const dashboardLink = document.querySelector('a[href="/dashboard"]');
+    if (!user) dashboardLink.style.display = "none";
+  });
+
+  function logout() {
     localStorage.removeItem("usuario");
     localStorage.removeItem("userToken");
-
-    function logout() {
-      localStorage.removeItem("usuario");
-      localStorage.removeItem("userToken");
-      auth.signOut().then(() => window.location.href = "/login.html");
-    }
-  </script>
+    auth.signOut().then(() => window.location.href = "/login.html");
+  }
+</script>
 </head>
 <body>
-  <!-- NAV -->
-  <nav class="navbar">
-    <div class="logo">ScanWatter</div>
-    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
 
-    <ul class="nav-links">
-      <li><a href="#inicio">Inicio</a></li>
-      <li><a href="#funciona">Cómo Funciona</a></li>
-      <li><a href="#beneficios">Beneficios</a></li>
-      <li><a href="/dashboard">Dashboard</a></li>
-      <li><a href="#" onclick="logout()">Cerrar Sesión</a></li>
-    </ul>
-  </nav>
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo">ScanWatter</div>
+  <ul class="nav-links">
+    <li><a href="#inicio">Inicio</a></li>
+    <li><a href="#funciona">Cómo Funciona</a></li>
+    <li><a href="#beneficios">Beneficios</a></li>
+    <li><a href="#monitoreo">Monitoreo</a></li>
+    <li><a href="/dashboard">Dashboard</a></li>
+    <li><a href="#" onclick="logout()">Cerrar Sesión</a></li>
+  </ul>
+</nav>
 
-  <!-- 🟢 CONTENIDO REAL -->
-  <section id="inicio" class="section">
-    <h1>Bienvenido a ScanWatter</h1>
-    <p>Plataforma inteligente para el monitoreo de recursos hídricos.</p>
-  </section>
+<!-- HERO -->
+<section id="inicio" class="hero">
+  <div class="hero-text">
+    <h1>Controla el consumo de agua con ScanWatter</h1>
+    <p>ScanWatter es la solución definitiva para hogares, empresas y comunidades que desean monitorear, optimizar y reducir el consumo de agua. Obtén estadísticas precisas, alertas en tiempo real y reportes detallados desde cualquier dispositivo.</p>
+    <button class="btn" onclick="scrollToSection('funciona')">Descubre cómo funciona</button>
+  </div>
 
-  <section id="funciona" class="section">
-    <h2>¿Cómo funciona?</h2>
-    <p>Utilizamos sensores IoT para recopilar información en tiempo real sobre el consumo de agua.</p>
-  </section>
+  <div class="hero-logo-container">
+    <img src="img/logo_blanco.png" alt="Logo ScanWatter" class="hero-logo">
+  </div>
+</section>
 
-  <section id="beneficios" class="section">
-    <h2>Beneficios</h2>
-    <ul>
-      <li>Monitoreo en tiempo real</li>
-      <li>Detección de fugas</li>
-      <li>Ahorro de recursos</li>
-      <li>Gestión inteligente</li>
-    </ul>
-  </section>
+<!-- CÓMO FUNCIONA -->
+<section id="funciona" class="section">
+  <h2>Cómo Funciona</h2>
+  <p class="section-text">ScanWatter combina sensores inteligentes con análisis de datos en la nube para ofrecer un monitoreo preciso y accesible.</p>
+  <div class="cards">
+    <div class="card">
+      <h3>Monitoreo en tiempo real</h3>
+      <p>Visualiza el consumo exactamente en qué horarios y en qué áreas.</p>
+    </div>
+    <div class="card">
+      <h3>Alertas inteligentes</h3>
+      <p>Recibe notificaciones de consumo inusual, fugas y desperdicios.</p>
+    </div>
+    <div class="card">
+      <h3>Reportes detallados</h3>
+      <p>Identifica patrones de consumo y oportunidades de ahorro.</p>
+    </div>
+  </div>
+</section>
 
-  <footer class="footer">
-    <p>© 2025 ScanWatter - Todos los derechos reservados</p>
-  </footer>
+<!-- BENEFICIOS -->
+<section id="beneficios" class="section section-alt">
+  <h2>Beneficios de ScanWatter</h2>
+  <p class="section-text">Mejora la eficiencia y promueve la sostenibilidad.</p>
+  <div class="cards">
+    <div class="card"><h3>Ahorrar Agua</h3><p>Reduce desperdicios.</p></div>
+    <div class="card"><h3>Control Total</h3><p>Desde cualquier dispositivo.</p></div>
+    <div class="card"><h3>Comparte Datos</h3><p>Con familias o administradores.</p></div>
+    <div class="card"><h3>Alertas Personalizadas</h3><p>Adaptadas a tus necesidades.</p></div>
+  </div>
+</section>
 
-  <script src="js/script.js"></script>
-  <script src="js/auth.js"></script>
+<!-- MONITOREO -->
+<section id="monitoreo" class="section">
+  <h2>Monitoreo en Gráficas</h2>
+  <p class="section-text">Visualiza tu consumo de manera dinámica.</p>
+  <div class="chart-container">
+    <canvas id="lineChart" width="700" height="400"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="barChart" width="700" height="400"></canvas>
+  </div>
+</section>
 
-  <script>
-    function toggleMenu() {
-      document.querySelector('.nav-links').classList.toggle('active');
-    }
-  </script>
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-column">
+      <h4>ScanWatter</h4>
+      <ul>
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#funciona">Cómo Funciona</a></li>
+        <li><a href="#beneficios">Beneficios</a></li>
+        <li><a href="#monitoreo">Monitoreo</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h4>Recursos</h4>
+      <ul>
+        <li><a href="#">Documentación</a></li>
+        <li><a href="#">Tutoriales</a></li>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Soporte Técnico</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h4>Información Relacionada</h4>
+      <ul>
+        <li><a href="#">Privacidad</a></li>
+        <li><a href="#">Términos</a></li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <h4>Síguenos</h4>
+      <ul>
+        <li><a href="#">Twitter</a></li>
+        <li><a href="#">YouTube</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>2025 © ScanWatter. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/script.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('Service Worker OK:', reg.scope))
+      .catch(err => console.error('Error SW:', err));
+  }
+
+  function toggleMenu() {
+    document.querySelector('.nav-links').classList.toggle('active');
+  }
+  function scrollToSection(id) {
+    document.getElementById(id).scrollIntoView({ behavior: "smooth" });
+  }
+</script>
 </body>
 </html>
