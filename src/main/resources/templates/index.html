@@ -26,7 +26,7 @@
       return new Promise(resolve => {
         auth.onAuthStateChanged(async user => {
           if (!user) {
-            window.location.replace("/login"); // 🔒 Redirige si no está logueado
+            window.location.replace("/login");
           } else {
             const token = await user.getIdToken();
             localStorage.setItem("userToken", token);
@@ -48,11 +48,14 @@
 <body>
   <nav class="navbar">
     <div class="logo">ScanWatter</div>
+
+    <!-- BOTÓN HAMBURGUESA -->
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+
     <ul class="nav-links">
       <li><a href="#inicio">Inicio</a></li>
       <li><a href="#funciona">Cómo Funciona</a></li>
       <li><a href="#beneficios">Beneficios</a></li>
-      <!-- <li><a href="#monitoreo">Monitoreo</a></li> -->
       <li><a href="/dashboard">Dashboard</a></li>
       <li><a href="#" onclick="logout()">Cerrar Sesión</a></li>
     </ul>
@@ -62,5 +65,12 @@
 
   <script src="js/script.js"></script>
   <script src="js/auth.js"></script>
+
+  <!-- FUNCIÓN PARA RESPONDER AL BOTÓN -->
+  <script>
+    function toggleMenu() {
+      document.querySelector('.nav-links').classList.toggle('active');
+    }
+  </script>
 </body>
 </html>

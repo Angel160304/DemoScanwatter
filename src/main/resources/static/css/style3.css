@@ -96,7 +96,6 @@ p {
   padding: 150px 20px 20px 20px;
 }
 
-/* HERO TEXTO */
 .hero-content h1 {
   margin-bottom: 25px;
 }
@@ -113,30 +112,17 @@ p {
   width: 400px;
   max-width: 70%;
   opacity: 0;
-  transform: scale(0.5) translateY(-50px); /* estado inicial */
+  transform: scale(0.5) translateY(-50px);
   animation: bounceFade 1s ease forwards;
   animation-delay: 0.7s;
 }
 
-/* ANIMACIÓN DE BRINCO */
 @keyframes bounceFade {
-  0% {
-    opacity: 0;
-    transform: scale(0.5) translateY(-50px);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1) translateY(20px);
-  }
-  70% {
-    transform: scale(0.95) translateY(-10px);
-  }
-  100% {
-    opacity: 1; /* aseguramos que quede visible */
-    transform: scale(1) translateY(0); /* estado final */
-  }
+  0% { opacity: 0; transform: scale(0.5) translateY(-50px); }
+  50% { opacity: 1; transform: scale(1.1) translateY(20px); }
+  70% { transform: scale(0.95) translateY(-10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
-
 
 /* === SECCIONES === */
 .section, .section-alt {
@@ -152,7 +138,6 @@ p {
   backdrop-filter: blur(12px);
 }
 
-/* TEXTO DE SECCIONES */
 .section-text {
   max-width: 800px;
   margin: 0 auto 40px auto;
@@ -186,7 +171,7 @@ p {
   box-shadow: 0 12px 40px rgba(0,191,255,0.5);
 }
 
-/* === GRÁFICAS / MONITOREO === */
+/* === GRÁFICAS === */
 .chart-container {
   max-width: 750px;
   margin: 50px auto;
@@ -220,7 +205,7 @@ canvas {
   box-shadow: 0 8px 25px rgba(0,150,255,0.5);
 }
 
-/* === FORMULARIO DE CONTACTO === */
+/* === FORMULARIO === */
 .form {
   display: flex;
   flex-direction: column;
@@ -270,7 +255,7 @@ canvas {
   box-shadow: 0 8px 25px rgba(0,150,255,0.5);
 }
 
-/* === FOOTER CENTRADO === */
+/* === FOOTER === */
 .footer {
   background-color: #121212;
   color: #fff;
@@ -300,7 +285,6 @@ canvas {
 .footer-column ul {
   list-style: none;
   padding: 0;
-  text-align: center;
 }
 
 .footer-column ul li {
@@ -332,12 +316,38 @@ canvas {
     align-items: center;
     gap: 20px;
   }
+
   .hero-logo {
     width: 300px;
   }
+
+  /* ⬇️ NUEVO: Responsive para menú */
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    background: rgba(26,26,26,0.95);
+    padding: 20px;
+    border-radius: 10px;
+    width: auto;
+  }
+
+  .nav-links.show {
+    display: flex;
+  }
+
+  .menu-toggle {
+    display: block;
+    font-size: 28px;
+    cursor: pointer;
+    color: white;
+  }
 }
 
-
-
-
-
+/* En escritorio NO mostrar botón hamburguesa */
+.menu-toggle {
+  display: none;
+}
