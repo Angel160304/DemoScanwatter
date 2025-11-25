@@ -29,7 +29,8 @@
     </label>
 
     <button class="submit">Registrarme</button>
-    <p class="signin">¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
+    <!-- 🔹 CORREGIDO: ruta correcta -->
+    <p class="signin">¿Ya tienes cuenta? <a href="/login.html">Inicia sesión</a></p>
   </form>
 
   <!-- Firebase -->
@@ -48,7 +49,6 @@
       measurementId: "G-GCR3RHEQQQ"
     };
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
 
     document.getElementById("registroForm").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -63,12 +63,14 @@
       }
 
       try {
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const token = await userCredential.user.getIdToken();
-        localStorage.setItem("userToken", token);
+        await firebase.auth().createUserWithEmailAndPassword(email, password);
         localStorage.setItem("usuario", email);
+
         alert("Usuario registrado correctamente");
-        window.location.replace("/index"); // redirige al controlador seguro
+
+        // 🔹 CORREGIDO: se va directo a login
+        window.location.href = "/login.html";
+
       } catch (error) {
         alert("Error al registrar usuario: " + error.message);
         console.error(error);
