@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class ViewController {
 
     // NUEVO MÉTODO: Manejar la ruta raíz "/"
-    @GetMapping("/")
-    public String rootRedirect() {
-        // Redirigir la ruta raíz a /index. Spring Security (WebSecurityConfig)
-        // se encargará de interceptar esta solicitud y, si el usuario no está logueado,
-        // lo redirigirá a /login.
-        return "redirect:/index"; 
-    }
+    // @GetMapping("/")
+    // public String rootRedirect() {
+    //     // Redirigir la ruta raíz a /index. Spring Security (WebSecurityConfig)
+    //     // se encargará de interceptar esta solicitud y, si el usuario no está logueado,
+    //     // lo redirigirá a /login.
+    //     return "redirect:/index"; 
+    // }
 
     @GetMapping("/login")
     public String login() {
