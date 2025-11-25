@@ -8,26 +8,23 @@ public class ViewController {
 
     @GetMapping("/")
     public String rootRedirect() {
-        return "redirect:/index"; // Redirige a index.html
-    }
-
-    @GetMapping("/login")
-    public String login() {
-        return "login.html"; // Devuelve login desde static
-    }
-
-    @GetMapping("/registro")
-    public String registro() {
-        return "registro"; 
+        return "redirect:/index.html"; // Redirige a index.html
     }
 
     @GetMapping("/index")
     public String index() {
-        return "index"; 
+        return "index"; // index.html en static
     }
 
     @GetMapping("/dashboard")
     public String dashboard() {
-        return "dashboard"; // Protegida por Spring Security
+        return "dashboard"; // dashboard.html protegido
     }
+    
+    @GetMapping("/registro")
+    public String registro() {
+        return "registro"; // registro.html en static
+    }
+
+    // ❌ NO mapear /login en controlador, solo usar /login.html en static
 }

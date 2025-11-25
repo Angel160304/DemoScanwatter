@@ -16,7 +16,7 @@ function validarPassword(password) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ===== REGISTRO (Mantenido) =====
+  // ===== REGISTRO =====
   const registroForm = document.querySelector("#registroForm");
   if (registroForm) {
     registroForm.addEventListener("submit", async (e) => {
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.startsWith("Error")) {
           alert(data);
         } else {
-          window.location.href = "/login";
+          window.location.href = "/login.html"; // Redirige al login
         }
       } catch (err) {
         console.error("Error en registro:", err);
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ===== LOGIN (MODIFICADO) =====
+  // ===== LOGIN =====
   const loginForm = document.querySelector("#loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
@@ -89,8 +89,11 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
+        // Guardamos datos en localStorage
         localStorage.setItem("usuario", email);
         localStorage.setItem("userToken", token);
+
+        // REDIRECCIÓN POST LOGIN: Solo aquí se redirige
         window.location.href = "/index";
 
       } catch (err) {
@@ -101,11 +104,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ===== FUNCIÓN GLOBAL PARA CERRAR SESIÓN (Mantenida) =====
+// ===== FUNCIÓN GLOBAL PARA CERRAR SESIÓN =====
 function logout() {
   localStorage.removeItem("usuario");
   localStorage.removeItem("userToken");
   firebase.auth().signOut().then(() => {
-    window.location.href = "/login";
+    window.location.href = "/login.html";
   });
 }
+
+/* ===== NOTA IMPORTANTE =====
+ * Antes se tenía un bloque de auth.onAuthStateChanged() que redirigía automáticamente
+ * si el usuario ya estaba logueado. Esto causaba bucles de redirección al abrir
+ * la URL desde otros dispositivos o al escanear el QR.
+ *
+ * Ahora, la redirección solo ocurre después de validar exitosamente el login en el formulario,
+ * evitando así el error ERR_TOO_MANY_REDIRECTS.
+ */
