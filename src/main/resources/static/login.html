@@ -1,64 +1,81 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - ScanWatter</title>
-  <link rel="stylesheet" href="css/style2.css">
-  <link rel="manifest" href="manifest.json?v=5">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - ScanWatter</title>
+  <link rel="stylesheet" href="css/style2.css">
+  <link rel="manifest" href="manifest.json?v=5">
 </head>
 <body>
 
-  <form class="form" id="loginForm">
-    <p class="title">Login</p>
-    <p class="message">Bienvenido, ingresa tus datos para acceder a la página.</p>
+  <form class="form" id="loginForm">
+    <p class="title">Login</p>
+    <p class="message">Bienvenido, ingresa tus datos para acceder a la página.</p>
 
-    <label>
-      <input id="logEmail" class="input" type="email" required>
-      <span>Email</span>
-    </label>
+    <label>
+      <input id="logEmail" class="input" type="email" required>
+      <span>Email</span>
+    </label>
 
-    <label>
-      <input id="logPassword" class="input" type="password" required>
-      <span>Contraseña</span>
-    </label>
+    <label>
+      <input id="logPassword" class="input" type="password" required>
+      <span>Contraseña</span>
+    </label>
 
-    <button class="submit">Iniciar sesión</button>
-    <p class="signin">No tienes una cuenta? <a href="/registro">Regístrate</a></p>
-  </form>
+    <button class="submit">Iniciar sesión</button>
+    <p class="signin">No tienes una cuenta? <a href="/registro">Regístrate</a></p>
+  </form>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
-    <script>
-    const firebaseConfig = {
-      apiKey: "TU_API_KEY",
-      authDomain: "scanwatter-1bf04.firebaseapp.com",
-      databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
-      projectId: "scanwatter-1bf04",
-      storageBucket: "scanwatter-1bf04.firebasestorage.app",
-      messagingSenderId: "19246885609",
-      appId: "1:19246885609:web:c50bc7012698ddfcddde78",
-      measurementId: "G-GCR3RHEQQQ"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    
-    // REDIRECCIÓN INICIAL (Este bloque ya no debe iniciar la sesión de Spring, solo redirige)
+  <script>
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "scanwatter-1bf04.firebaseapp.com",
+      databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
+      projectId: "scanwatter-1bf04",
+      storageBucket: "scanwatter-1bf04.firebasestorage.app",
+      messagingSenderId: "19246885609",
+      appId: "1:19246885609:web:c50bc7012698ddfcddde78",
+      measurementId: "G-GCR3RHEQQQ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // 🔹 LIMPIAR TOKEN VIEJO para evitar bucles
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("usuario");
+
+    // 🔹 REDIRECCIÓN SEGURA AL CARGAR LA PÁGINA
     auth.onAuthStateChanged(async user => {
-        // Si el usuario tiene una sesión activa en Firebase, intentamos validar en Spring
-        if (user) {
-            // No necesitamos guardar el token aquí, el login lo hace.
-            // Redirigimos directamente, Spring Security validará la sesión web.
-            window.location.replace("/index"); 
+      if (user) {
+        try {
+          const token = await user.getIdToken();
+          // Opcional: validar token con backend antes de redirigir
+          const response = await fetch("/api/auth/verify-token", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({idToken: token})
+          });
+          if (response.ok) {
+            window.location.replace("/dashboard"); // Si token válido, ir a dashboard
+          } else {
+            auth.signOut(); // Token inválido → cerrar sesión Firebase
+          }
+        } catch(e) {
+          console.error("Error al validar token:", e);
+          auth.signOut();
         }
+      }
     });
 
     if ("serviceWorker" in navigator) {
         navigator.serviceWorker.register("/service-worker.js?v=5");
     }
-  </script>
+  </script>
 
-  <script src="/js/auth.js"></script> 
+  <script src="/js/auth.js"></script>
 </body>
 </html>
