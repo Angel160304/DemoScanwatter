@@ -15,10 +15,12 @@ public class ViewController {
     //     return "redirect:/index"; 
     // }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login"; // Muestra login.html
-    }
+   @GetMapping("/login")
+public String login() {
+    return "login.html"; // Sirve directamente login.html desde templates
+}
+
+
 
     @GetMapping("/registro")
     public String registro() {

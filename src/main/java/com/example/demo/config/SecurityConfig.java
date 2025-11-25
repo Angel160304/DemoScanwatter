@@ -16,20 +16,18 @@ public class SecurityConfig { // Nombre de clase corregido
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests((requests) -> requests
-            .requestMatchers(
-                "/",           // 👈 PERMITIR RUTA RAÍZ
-                "/index",      // 👈 PERMITIR /index
-                "/login", 
-                "/registro", 
-                "/js/**", 
-                "/css/**", 
-                "/images/**", 
-                "/service-worker.js", 
-                "/manifest.json",
-                "/api/auth/verify-token"
-            ).permitAll()
-            .anyRequest().authenticated()
-        )
+    .requestMatchers(
+        "/", "/index", "/login.html", "/registro",
+        "/js/**", "/css/**", "/images/**",
+        "/service-worker.js", "/manifest.json",
+        "/api/auth/verify-token"
+    ).permitAll()
+    .requestMatchers("/dashboard").authenticated() // dashboard protegido
+    .anyRequest().permitAll()
+)
+
+// Ya no uses formLogin()
+
         .formLogin((form) -> form
             .loginPage("/login")
             .defaultSuccessUrl("/dashboard", true) // Después del login va al dashboard
