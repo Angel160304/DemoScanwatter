@@ -13,21 +13,21 @@ public class ViewController {
 
     @GetMapping("/login")
     public String login() {
-        return "login.html"; // Para Spring Security y QR
+        return "login.html"; // Devuelve login desde static
     }
 
     @GetMapping("/registro")
     public String registro() {
-        return "registro"; // Muestra registro.html
+        return "registro"; 
     }
 
     @GetMapping("/index")
     public String index() {
-        return "index"; // Muestra index.html
+        return "index"; 
     }
 
     @GetMapping("/dashboard")
     public String dashboard() {
-        return "dashboard"; // Muestra dashboard.html
+        return "dashboard"; // Protegida por Spring Security
     }
 }
