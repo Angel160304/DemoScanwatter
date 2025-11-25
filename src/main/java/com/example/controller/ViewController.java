@@ -6,10 +6,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ViewController {
 
-    // Opcional: manejar la raíz "/"
     @GetMapping("/")
     public String rootRedirect() {
         return "redirect:/index"; // Redirige a index.html
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login.html"; // Para Spring Security y QR
     }
 
     @GetMapping("/registro")
