@@ -24,8 +24,7 @@
     </label>
 
     <button class="submit">Iniciar sesión</button>
-    <!-- 🔹 CORREGIDO: redirige al archivo real -->
-    <p class="signin">¿No tienes una cuenta? <a href="/registro.html">Regístrate</a></p>
+    <p class="signin">¿No tienes una cuenta? <a href="registro.html">Regístrate</a></p>
   </form>
 
   <!-- Firebase -->
@@ -33,9 +32,8 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
   <script>
-    // Firebase Config
     const firebaseConfig = {
-      apiKey: "TU_API_KEY",
+      apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
       authDomain: "scanwatter-1bf04.firebaseapp.com",
       databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
       projectId: "scanwatter-1bf04",
@@ -46,32 +44,23 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    localStorage.removeItem("usuario"); // Limpia sesión anterior
+    localStorage.removeItem("usuario");
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const loginForm = document.getElementById("loginForm");
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-      if (loginForm) {
-        loginForm.addEventListener("submit", async (e) => {
-          e.preventDefault();
+      const email = document.getElementById("logEmail").value.trim();
+      const pass = document.getElementById("logPassword").value.trim();
 
-          const email = document.getElementById("logEmail").value.trim();
-          const pass = document.getElementById("logPassword").value.trim();
+      if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
-          if (pass.length < 6) return alert("La contraseña es demasiado corta");
-
-          try {
-            await firebase.auth().signInWithEmailAndPassword(email, pass);
-            localStorage.setItem("usuario", email);
-
-            // 🔹 CORREGIDO: Dashboard directo
-            window.location.href = "/dashboard";
-
-          } catch (err) {
-            console.error("Firebase Login Error:", err);
-            alert("Error al autenticar, verifica tus credenciales.");
-          }
-        });
+      try {
+        await firebase.auth().signInWithEmailAndPassword(email, pass);
+        localStorage.setItem("usuario", email);
+        window.location.href = "dashboard";
+      } catch (err) {
+        console.error("Firebase Login Error:", err);
+        alert("Error al autenticar, verifica tus credenciales.");
       }
     });
   </script>

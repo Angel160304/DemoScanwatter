@@ -1,7 +1,20 @@
-// ====== CONFIGURACIÓN DE BACKEND (ya no se usa) ======
-// const API_URL = "https://demoscanwatter.onrender.com/api/auth";
+// =================== CONFIGURACIÓN FIREBASE ===================
+const firebaseConfig = {
+  apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
+  authDomain: "scanwatter-1bf04.firebaseapp.com",
+  databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
+  projectId: "scanwatter-1bf04",
+  storageBucket: "scanwatter-1bf04.firebasestorage.app",
+  messagingSenderId: "19246885609",
+  appId: "1:19246885609:web:c50bc7012698ddfcddde78",
+  measurementId: "G-GCR3RHEQQQ"
+};
 
-// ===== VALIDACIÓN DE EMAIL Y PASSWORD =====
+// Inicializa Firebase (versión compatible con tus scripts)
+firebase.initializeApp(firebaseConfig);
+
+
+// =================== VALIDACIONES ===================
 function validarEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -15,8 +28,11 @@ function validarPassword(password) {
   return true;
 }
 
+
+// =================== EVENTOS ===================
 document.addEventListener("DOMContentLoaded", () => {
-  // ===== REGISTRO =====
+
+  // --------------- REGISTRO ----------------
   const registroForm = document.querySelector("#registroForm");
   if (registroForm) {
     registroForm.addEventListener("submit", async (e) => {
@@ -31,12 +47,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (pass !== confirmPass) return alert("Las contraseñas no coinciden");
 
       try {
-        // Registro directo con Firebase
         await firebase.auth().createUserWithEmailAndPassword(email, pass);
-
         alert("Usuario registrado correctamente");
-        window.location.href = "/login.html"; // Redirige al login
-
+        window.location.href = "login.html"; // 🔹 SIN SLASH INICIAL
       } catch (err) {
         console.error("Error en registro:", err);
         alert("Error al registrar: " + err.message);
@@ -44,7 +57,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ===== LOGIN =====
+
+  // --------------- LOGIN ------------------
   const loginForm = document.querySelector("#loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
@@ -57,15 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
       try {
-        // Login directo con Firebase
         await firebase.auth().signInWithEmailAndPassword(email, pass);
-
-        // Guardamos solo el correo del usuario en localStorage
         localStorage.setItem("usuario", email);
-
-        // REDIRECCIÓN SOLO DESPUÉS DE LOGIN
-        window.location.href = "/dashboard";
-
+        window.location.href = "dashboard"; // 🔹 Spring lo resuelve
       } catch (err) {
         console.error("Firebase Login Error:", err);
         alert("Error al autenticar, verifica tus credenciales.");
@@ -74,10 +82,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ===== CERRAR SESIÓN =====
+
+// =================== CERRAR SESIÓN ===================
 function logout() {
   localStorage.removeItem("usuario");
   firebase.auth().signOut().then(() => {
-    window.location.href = "/login.html";
+    window.location.href = "login.html"; // 🔹 SIN / para que cargue desde static
   });
 }
