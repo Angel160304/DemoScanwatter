@@ -1,3 +1,20 @@
+// ====== CONFIGURACIÓN DE BACKEND (ya no se usa) ======
+// const API_URL = "https://demoscanwatter.onrender.com/api/auth";
+
+// ===== VALIDACIÓN DE EMAIL Y PASSWORD =====
+function validarEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function validarPassword(password) {
+  if (password.length < 8) return alert("La contraseña debe tener al menos 8 caracteres.");
+  if (!/[a-z]/.test(password)) return alert("Debe incluir al menos una letra minúscula.");
+  if (!/[A-Z]/.test(password)) return alert("Debe incluir al menos una letra mayúscula.");
+  if (!/[0-9]/.test(password)) return alert("Debe incluir al menos un número.");
+  if (!/[^A-Za-z0-9]/.test(password)) return alert("Debe incluir un carácter especial.");
+  return true;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   // ===== REGISTRO =====
   const registroForm = document.querySelector("#registroForm");
@@ -14,27 +31,15 @@ document.addEventListener("DOMContentLoaded", () => {
       if (pass !== confirmPass) return alert("Las contraseñas no coinciden");
 
       try {
+        // Registro directo con Firebase
         await firebase.auth().createUserWithEmailAndPassword(email, pass);
 
-        // 🔹 COMENTADO: ya no enviamos token al backend
-        /*
-        const token = await firebase.auth().currentUser.getIdToken();
-        const response = await fetch(`${API_URL}/register`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": `Bearer ${token}`
-          },
-          body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}`
-        });
-        const data = await response.text();
-        if (data.startsWith("Error")) { alert(data); }
-        */
-
+        alert("Usuario registrado correctamente");
         window.location.href = "/login.html"; // Redirige al login
+
       } catch (err) {
         console.error("Error en registro:", err);
-        alert("Error al registrar");
+        alert("Error al registrar: " + err.message);
       }
     });
   }
@@ -52,21 +57,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
       try {
+        // Login directo con Firebase
         await firebase.auth().signInWithEmailAndPassword(email, pass);
 
-        // 🔹 COMENTADO: ya no validamos token con backend
-        /*
-        const token = await firebase.auth().currentUser.getIdToken();
-        const response = await fetch(`${API_URL}/verify-token`, {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ idToken: token })
-        });
-        const data = await response.json();
-        if (!response.ok) { alert("Error al validar la sesión"); return; }
-        localStorage.setItem("userToken", token);
-        */
-
+        // Guardamos solo el correo del usuario en localStorage
         localStorage.setItem("usuario", email);
 
         // REDIRECCIÓN SOLO DESPUÉS DE LOGIN
@@ -79,3 +73,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// ===== CERRAR SESIÓN =====
+function logout() {
+  localStorage.removeItem("usuario");
+  firebase.auth().signOut().then(() => {
+    window.location.href = "/login.html";
+  });
+}
