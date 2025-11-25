@@ -1,4 +1,4 @@
-// com.example.controller.ViewController.java
+package com.example.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -6,31 +6,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class ViewController {
 
-    // NUEVO MÉTODO: Manejar la ruta raíz "/"
-    // @GetMapping("/")
-    // public String rootRedirect() {
-    //     // Redirigir la ruta raíz a /index. Spring Security (WebSecurityConfig)
-    //     // se encargará de interceptar esta solicitud y, si el usuario no está logueado,
-    //     // lo redirigirá a /login.
-    //     return "redirect:/index"; 
-    // }
-
-   @GetMapping("/login")
-public String login() {
-    return "login.html"; // Sirve directamente login.html desde templates
-}
-
-
+    // Opcional: manejar la raíz "/"
+    @GetMapping("/")
+    public String rootRedirect() {
+        return "redirect:/index"; // Redirige a index.html
+    }
 
     @GetMapping("/registro")
     public String registro() {
         return "registro"; // Muestra registro.html
     }
 
-    // Mapea la URL /index a la vista "index" (index.html)
     @GetMapping("/index")
     public String index() {
-        return "index"; 
+        return "index"; // Muestra index.html
     }
 
     @GetMapping("/dashboard")

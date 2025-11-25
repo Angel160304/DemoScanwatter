@@ -17,12 +17,9 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
     http
         .authorizeHttpRequests((requests) -> requests
     .requestMatchers(
-        "/", "/index", "/login.html", "/registro",
-        "/js/**", "/css/**", "/images/**",
-        "/service-worker.js", "/manifest.json",
-        "/api/auth/verify-token"
+        "/", "/index", "/login.html", "/registro", "/js/**", "/css/**", "/images/**"
     ).permitAll()
-    .requestMatchers("/dashboard").authenticated() // dashboard protegido
+    .requestMatchers("/dashboard").authenticated()
     .anyRequest().permitAll()
 )
 
