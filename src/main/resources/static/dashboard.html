@@ -10,6 +10,27 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="auth.js"></script> <!-- Tu auth.js -->
+</head>
+
+<body class="dashboard-body">
+  <div class="top-buttons">
+    <button onclick="window.location.href='index.html'">Back</button>
+    <button onclick="logout()">Cerrar Sesión</button>
+  </div>
+
+  <div class="dashboard-container">
+    <h2>Dashboard - Consumo de Agua</h2>
+
+    <div class="selector-fecha">
+      <label>Selecciona un día:</label>
+      <input type="date" id="datePicker" onchange="loadDay()">
+    </div>
+
+    <div class="chart-container" style="height:400px;">
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
 
   <script>
     // ⚙️ Configuración Firebase
@@ -28,9 +49,7 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // ❌ Eliminada validación de sesión para que permita entrar sin login
-
-    // 📊 Cargar datos del día seleccionado
+    // Cargar datos del día seleccionado
     function loadDay() {
       const date = document.getElementById("datePicker").value;
       if (!date) return;
@@ -42,7 +61,6 @@
       });
     }
 
-    // 📈 Renderizar gráfico
     function renderChart(data) {
       const labels = Object.keys(data);
       const values = Object.values(data);
@@ -65,35 +83,6 @@
         }
       });
     }
-
-    // 🔓 Cerrar sesión (si alguien estaba logueado lo puede cerrar, no afecta si no hay sesión)
-    function logout() {
-      auth.signOut().then(() => {
-        localStorage.removeItem("usuario");
-        localStorage.removeItem("userToken");
-        window.location.href = "login.html";
-      });
-    }
   </script>
-</head>
-
-<body class="dashboard-body">
-  <div class="top-buttons">
-    <button onclick="window.location.href='/index.html'">Back</button>
-    <button onclick="logout()">Cerrar Sesión</button>
-  </div>
-
-  <div class="dashboard-container">
-    <h2>Dashboard - Consumo de Agua</h2>
-
-    <div class="selector-fecha">
-      <label>Selecciona un día:</label>
-      <input type="date" id="datePicker" onchange="loadDay()">
-    </div>
-
-    <div class="chart-container" style="height:400px;">
-      <canvas id="chart"></canvas>
-    </div>
-  </div>
 </body>
 </html>
