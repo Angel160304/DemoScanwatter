@@ -28,15 +28,7 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // 🚨 VALIDACIÓN DE SESIÓN (snippet que me pediste)
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        console.log("Usuario autenticado:", user.email);
-      } else {
-        console.warn("No hay sesión activa, redirigiendo...");
-        setTimeout(() => window.location.href = "login.html", 300);
-      }
-    });
+    // ❌ Eliminada validación de sesión para que permita entrar sin login
 
     // 📊 Cargar datos del día seleccionado
     function loadDay() {
@@ -74,7 +66,7 @@
       });
     }
 
-    // 🔓 Cerrar sesión
+    // 🔓 Cerrar sesión (si alguien estaba logueado lo puede cerrar, no afecta si no hay sesión)
     function logout() {
       auth.signOut().then(() => {
         localStorage.removeItem("usuario");
