@@ -8,23 +8,26 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig { // ABRIMOS LA CLASE
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(requests -> requests
-                // 1. Permitimos TODAS las peticiones (ya lo tenías)
-                .anyRequest().permitAll()
+                .requestMatchers("/login.html", "/index.html", "/", "/css/**", "/js/**", "/img/**", "/manifest.json")
+                    .permitAll()
+                .requestMatchers("/dashboard")
+                    .authenticated()
+                .anyRequest().authenticated()
             )
-            // 2. Deshabilitamos CSRF (ya lo tenías)
-            .csrf(csrf -> csrf.disable())
-            
-            // 3. 💡 ¡NUEVO! Deshabilitar explícitamente el manejo de login por formularios.
-            // Esto evita que Spring Security te redirija automáticamente si detecta
-            // que falta un mecanismo de sesión.
-            .formLogin(form -> form.disable());
+            .formLogin(form -> form
+                .loginPage("/login.html")
+                .permitAll()
+            )
+            .logout(logout -> logout.permitAll())
+            .csrf(csrf -> csrf.disable());
             
         return http.build();
-    }
-}
+    } // CERRAMOS EL MÉTODO
+
+} // <--- ¡ASEGÚRATE DE QUE ESTA LLAVE CIERRE LA CLASE!
