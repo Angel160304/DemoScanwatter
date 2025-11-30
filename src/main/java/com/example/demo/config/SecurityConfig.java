@@ -8,26 +8,25 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig { // ABRIMOS LA CLASE
-
+public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(requests -> requests
-                .requestMatchers("/login.html", "/index.html", "/", "/css/**", "/js/**", "/img/**", "/manifest.json")
-                    .permitAll()
-                .requestMatchers("/dashboard")
-                    .authenticated()
+                // Permitir acceso a la API del token para crear la sesión
+                .requestMatchers("/api/login/firebase").permitAll() 
+                // Permitir acceso a login, index y estáticos
+                .requestMatchers("/login.html", "/index.html", "/", "/css/**", "/js/**", "/img/**").permitAll()
+                // REQUERIR AUTENTICACIÓN para el Dashboard
+                .requestMatchers("/dashboard").authenticated()
+                // El resto debe requerir autenticación (o puedes poner .anyRequest().permitAll() si quieres)
                 .anyRequest().authenticated()
             )
-            .formLogin(form -> form
-                .loginPage("/login.html")
-                .permitAll()
-            )
+            // Definir la página de login para la redirección (si el usuario no está logueado)
+            .formLogin(form -> form.loginPage("/login.html").permitAll())
             .logout(logout -> logout.permitAll())
             .csrf(csrf -> csrf.disable());
             
         return http.build();
-    } // CERRAMOS EL MÉTODO
-
-} // <--- ¡ASEGÚRATE DE QUE ESTA LLAVE CIERRE LA CLASE!
+    }
+}

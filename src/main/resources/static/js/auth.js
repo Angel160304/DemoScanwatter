@@ -28,7 +28,7 @@ function validarPassword(password) {
 // =================== EVENTOS ===================
 document.addEventListener("DOMContentLoaded", () => {
 
-    // --------------- REGISTRO ----------------
+    // --------------- REGISTRO (No se modifica) ----------------
     const registroForm = document.querySelector("#registroForm");
     if (registroForm) {
         registroForm.addEventListener("submit", async (e) => {
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --------------- LOGIN ------------------
+    // --------------- LOGIN (MODIFICADO para enviar Token al servidor) ------------------
     const loginForm = document.querySelector("#loginForm");
     if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
@@ -64,11 +64,33 @@ document.addEventListener("DOMContentLoaded", () => {
             if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
             try {
-                await firebase.auth().signInWithEmailAndPassword(email, pass);
+                // 1. Iniciar sesión con Firebase
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
+                const user = userCredential.user;
+
+                // 2. Obtener el ID Token (JWT)
+                const token = await user.getIdToken();
+
+                // 3. 💡 Enviar el Token al backend de Spring Boot para crear la sesión de Spring Security
+                const response = await fetch('/api/login/firebase', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ token: token })
+                });
+
+                if (!response.ok) {
+                    const errorMsg = await response.text();
+                    throw new Error(`Fallo al crear sesión en el servidor: ${errorMsg}`);
+                }
+
+                // 4. Éxito: Guardar en localStorage y redirigir
                 localStorage.setItem("usuario", email);
-                window.location.href = "dashboard"; // 🔹 Spring lo resuelve
+                window.location.href = "/dashboard"; // Redirigir al Dashboard protegido
+
             } catch (err) {
-                console.error("Firebase Login Error:", err);
+                console.error("Error de autenticación o sesión:", err);
                 alert("Error al autenticar, verifica tus credenciales.");
             }
         });
@@ -79,6 +101,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function logout() {
     localStorage.removeItem("usuario");
     firebase.auth().signOut().then(() => {
-        window.location.href = "login.html"; // 🔹 SIN / para que cargue desde static
+        // Opcional: También puedes llamar a un endpoint de Spring para invalidar la sesión del servidor si la creaste
+        // fetch('/logout', { method: 'POST' }); 
+        window.location.href = "login.html";
     });
 }
