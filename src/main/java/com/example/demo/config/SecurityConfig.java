@@ -11,32 +11,36 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests(requests -> requests
-                // 💡 #1: Permitir la API que crea la sesión (para que el fetch de auth.js funcione)
-                .requestMatchers("/api/login/firebase").permitAll() 
-                
-                // 💡 #2: Permitir TODOS los recursos estáticos (CSS, JS, IMG)
-                // Esto permite cargar /js/auth.js y SOLUCIONA el error 403 Forbidden.
-                // Es seguro porque solo permite cargar archivos, no ejecuta lógica de servidor.
-                .requestMatchers("/js/**", "/css/**", "/img/**", "/manifest.json", "/login.html", "/registro.html", "/index.html").permitAll()
-
-                // 💡 #3: REQUERIR AUTENTICACIÓN para el Dashboard
-                // Esta es la regla que verifica si hay una sesión válida de Spring Security.
-                .requestMatchers("/dashboard").authenticated()
-                
-                // #4: Cualquier otra petición que no esté cubierta requiere autenticación por defecto.
-                .anyRequest().authenticated()
-            )
-            // 💡 #5: Definir la página de login para la redirección automática de Spring Security
-            .formLogin(form -> form
-                .loginPage("/login.html") 
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests(requests -> requests
+            // 💡 #1: Permitir el acceso a login y todos los estáticos
+            // Usaremos el orden de las reglas para dar prioridad a lo que queremos permitir
+            .requestMatchers("/api/login/firebase", 
+                             "/login.html", 
+                             "/registro.html", 
+                             "/index.html",
+                             "/css/**", 
+                             "/img/**", 
+                             "/manifest.json",
+                             "/*.js",       // Para archivos JS en la raíz (ej: /auth.js si estuviera ahí)
+                             "/js/**")      // 💡 ESTO ES CRÍTICO: Cubre la carpeta /js/
                 .permitAll()
-            )
-            .logout(logout -> logout.permitAll())
-            .csrf(csrf -> csrf.disable()); 
+
+            // 💡 #2: REQUERIR AUTENTICACIÓN para el Dashboard
+            .requestMatchers("/dashboard").authenticated()
             
-        return http.build();
-    }
+            // #3: El resto de rutas deben estar protegidas
+            .anyRequest().authenticated()
+        )
+        // ... (resto de formLogin y csrf)
+        .formLogin(form -> form
+            .loginPage("/login.html") 
+            .permitAll()
+        )
+        .logout(logout -> logout.permitAll())
+        .csrf(csrf -> csrf.disable()); 
+        
+    return http.build();
+}
 }
