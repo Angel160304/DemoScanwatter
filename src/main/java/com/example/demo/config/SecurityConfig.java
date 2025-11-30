@@ -13,9 +13,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
-            .csrf(csrf -> csrf.disable());
-
+            .authorizeHttpRequests(requests -> requests
+                // 1. Permitimos TODAS las peticiones (ya lo tenías)
+                .anyRequest().permitAll()
+            )
+            // 2. Deshabilitamos CSRF (ya lo tenías)
+            .csrf(csrf -> csrf.disable())
+            
+            // 3. 💡 ¡NUEVO! Deshabilitar explícitamente el manejo de login por formularios.
+            // Esto evita que Spring Security te redirija automáticamente si detecta
+            // que falta un mecanismo de sesión.
+            .formLogin(form -> form.disable());
+            
         return http.build();
     }
 }
