@@ -9,24 +9,34 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    // Archivo: com.example.demo.config.SecurityConfig.java (VERIFICACIÓN)
 
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .authorizeHttpRequests(requests -> requests
-            // ESTO DEBE SER PERMITIDO: La API que crea la sesión de Spring
-            .requestMatchers("/api/login/firebase").permitAll() 
-            // Esto es el resto de páginas públicas
-            .requestMatchers("/login.html", "/index.html", "/", "/css/**", "/js/**", "/img/**").permitAll()
-            // ESTO DEBE ESTAR PROTEGIDO
-            .requestMatchers("/dashboard").authenticated()
-            .anyRequest().authenticated()
-        )
-        // ... (El resto de la configuración de formLogin y csrf)
-        // ...
-        .csrf(csrf -> csrf.disable());
-        
-    return http.build();
-}
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(requests -> requests
+                // 💡 #1: Permitir la API que crea la sesión (para que el fetch de auth.js funcione)
+                .requestMatchers("/api/login/firebase").permitAll() 
+                
+                // 💡 #2: Permitir TODOS los recursos estáticos (CSS, JS, IMG)
+                // Esto permite cargar /js/auth.js y SOLUCIONA el error 403 Forbidden.
+                // Es seguro porque solo permite cargar archivos, no ejecuta lógica de servidor.
+                .requestMatchers("/js/**", "/css/**", "/img/**", "/manifest.json", "/login.html", "/registro.html", "/index.html").permitAll()
+
+                // 💡 #3: REQUERIR AUTENTICACIÓN para el Dashboard
+                // Esta es la regla que verifica si hay una sesión válida de Spring Security.
+                .requestMatchers("/dashboard").authenticated()
+                
+                // #4: Cualquier otra petición que no esté cubierta requiere autenticación por defecto.
+                .anyRequest().authenticated()
+            )
+            // 💡 #5: Definir la página de login para la redirección automática de Spring Security
+            .formLogin(form -> form
+                .loginPage("/login.html") 
+                .permitAll()
+            )
+            .logout(logout -> logout.permitAll())
+            .csrf(csrf -> csrf.disable()); 
+            
+        return http.build();
+    }
 }
