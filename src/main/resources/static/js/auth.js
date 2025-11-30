@@ -28,7 +28,12 @@ function validarPassword(password) {
 // =================== EVENTOS ===================
 document.addEventListener("DOMContentLoaded", () => {
 
-    // --------------- REGISTRO (No se modifica) ----------------
+    // Si estás en la página de login, asegúrate de borrar cualquier sesión anterior.
+    if (document.querySelector("#loginForm")) {
+        localStorage.removeItem("usuario");
+    }
+
+    // --------------- REGISTRO ----------------
     const registroForm = document.querySelector("#registroForm");
     if (registroForm) {
         registroForm.addEventListener("submit", async (e) => {
@@ -52,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --------------- LOGIN (MODIFICADO para enviar Token al servidor) ------------------
+    // --------------- LOGIN (CRÍTICO) ------------------
     const loginForm = document.querySelector("#loginForm");
     if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
@@ -82,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (!response.ok) {
                     const errorMsg = await response.text();
+                    // Si falla el backend, mostramos un error pero evitamos redirigir al dashboard
                     throw new Error(`Fallo al crear sesión en el servidor: ${errorMsg}`);
                 }
 
@@ -101,8 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function logout() {
     localStorage.removeItem("usuario");
     firebase.auth().signOut().then(() => {
-        // Opcional: También puedes llamar a un endpoint de Spring para invalidar la sesión del servidor si la creaste
-        // fetch('/logout', { method: 'POST' }); 
-        window.location.href = "login.html";
+        // Redirigir a la página de login después de cerrar la sesión de Firebase
+        window.location.href = "login.html"; 
     });
 }
