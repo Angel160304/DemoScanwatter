@@ -57,11 +57,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-   // --------------- LOGIN (VERSIÓN CON CLICK) ------------------
-const loginButton = document.querySelector(".submit"); // O document.querySelector("#loginButton")
-if (loginButton) {
-    loginButton.addEventListener("click", async (e) => {
-        // e.preventDefault() YA NO ES NECESARIO si el botón es type="button"
+   // --------------- LOGIN (VERSION DE PRUEBA: CONEXIÓN) ------------------
+const loginForm = document.querySelector("#loginForm");
+if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault(); 
         
         const email = document.querySelector("#logEmail").value.trim();
         const pass = document.querySelector("#logPassword").value.trim();
@@ -70,11 +70,11 @@ if (loginButton) {
         if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
         try {
-            // 💡 1. SALTAMOS FIREBASE
-            console.log("Simulando autenticación exitosa. Enviando token a Spring...");
+            // 💡 1. SALTAMOS FIREBASE (Si esta línea no falla, el problema es Spring/Conexión)
+            console.log("Simulando autenticación exitosa. Forzando conexión a Spring...");
             const token = "TOKEN_DE_PRUEBA_EXITOSA"; 
 
-            // 💡 2. FORZAMOS EL ENVÍO DEL TOKEN AL BACKEND DE SPRING BOOT
+            // 💡 2. LLAMADA DE PRUEBA AL BACKEND DE SPRING BOOT
             const response = await fetch('/api/login/firebase', {
                 method: 'POST',
                 headers: {
@@ -84,17 +84,22 @@ if (loginButton) {
             });
 
             if (!response.ok) {
+                // Spring Boot DEBERÍA devolver 401/403 porque el token es falso, 
+                // pero si da 401/403, sabremos que el endpoint SÍ está disponible.
                 const errorMsg = await response.text();
-                throw new Error(`Fallo de conexión con Spring: ${errorMsg}`);
+                // Mostramos un mensaje de éxito, sabiendo que Spring lo rechazó (es normal).
+                alert("Conexión con el servidor exitosa. Spring rechazó el token (¡Lo esperábamos!)."); 
+                throw new Error(`Spring Server Rechazado: ${errorMsg}`);
             }
 
-            // 3. Éxito de conexión 
+            // 3. Éxito (solo si Spring lo acepta, lo cual es muy improbable con un token falso)
             localStorage.setItem("usuario", email);
             window.location.href = "/dashboard"; 
 
         } catch (err) {
             console.error("Error en la prueba de conexión:", err);
-            alert("Error de conexión con el servidor: " + err.message);
+            // Si el error de conexión es la causa, aquí lo capturamos
+            alert("Error de conexión con el servidor: " + err.message); 
             return;
         }
     });
