@@ -16,40 +16,34 @@ function validarEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// Implementar aquí el resto de validaciones como validarPassword, si las necesitas.
-// function validarPassword(password) { ... }
+// ... (Implementar aquí el resto de validaciones si es necesario) ...
 
 // =================== EVENTOS ===================
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Si estás en la página de login, asegúrate de borrar cualquier sesión anterior.
     if (document.querySelector("#loginForm")) {
         localStorage.removeItem("usuario");
     }
 
-    // --------------- LOGIN (CRÍTICO) ------------------
-    // 💡 TU HTML USA <button type="button" id="loginButton">, por lo tanto, escuchamos el 'click'
+    // --------------- LOGIN (PRUEBA DE CONEXIÓN) ------------------
+    // 💡 Escuchamos el 'click' en el botón para que coincida con tu login.html (type="button")
     const loginButton = document.querySelector("#loginButton");
 
     if (loginButton) {
         loginButton.addEventListener("click", async (e) => {
-            // No es necesario e.preventDefault() ya que el botón es type="button"
             
             const email = document.querySelector("#logEmail").value.trim();
             const pass = document.querySelector("#logPassword").value.trim();
 
             if (!validarEmail(email)) return alert("El correo no es válido");
-            if (pass.length < 6) return alert("La contraseña es demasiado corta"); // Validación mínima
+            if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
             try {
-                // 1. Iniciar sesión con Firebase
-                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
-                const user = userCredential.user;
+                // 💡 1. SALTAMOS la autenticación de Firebase para probar solo la conexión al backend
+                console.log("Simulando autenticación exitosa. Forzando conexión a Spring...");
+                const token = "TOKEN_DE_PRUEBA_EXITOSA_123456"; // Token FALSO
 
-                // 2. Obtener el ID Token (JWT)
-                const token = await user.getIdToken();
-
-                // 3. 💡 CORRECCIÓN PARA RENDER: Usar la URL ABSOLUTA para evitar "Failed to fetch"
+                // 2. 💡 LLAMADA DE PRUEBA al BACKEND DE SPRING BOOT (URL ABSOLUTA para Render)
                 const backendUrl = 'https://demoscanwatter.onrender.com/api/login/firebase';
                 
                 const response = await fetch(backendUrl, {
@@ -62,24 +56,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (!response.ok) {
                     const errorMsg = await response.text();
-                    // Si Spring Boot rechaza el token (ej: usuario no autorizado), falla aquí.
-                    throw new Error(`Fallo al crear sesión en el servidor: ${errorMsg}`);
+                    // Spring Boot DEBERÍA responder con 401/403 porque el token es falso.
+                    // Si llegamos aquí, ¡la conexión fue exitosa!
+                    console.log("Conexión con el servidor exitosa (Spring Server rechazó el token falso).");
+                    
+                    // 💡 Mostramos una alerta que confirma que el fetch SÍ se ejecutó.
+                    alert(`Conexión HTTP OK. Falló la creación de sesión (TOKEN FALSO). Mensaje de Spring: ${errorMsg.substring(0, 50)}...`); 
+                    
+                    // Detenemos la ejecución aquí, no intentamos redirigir.
+                    return; 
                 }
 
-                // 4. Éxito: Crear sesión de Spring Security y redirigir
+                // 4. Éxito (solo llegaremos aquí si el token falso fue aceptado, lo cual es casi imposible)
                 localStorage.setItem("usuario", email);
                 window.location.href = "/dashboard"; 
 
             } catch (err) {
-                console.error("Error de autenticación o sesión:", err);
-                // Muestra el mensaje de error de Firebase (ej: wrong-password, user-not-found)
-                alert("Error al autenticar: verifica tus credenciales."); 
+                console.error("Error crítico en la conexión fetch:", err);
+                // Si este alert aparece, el problema es que la URL no se pudo resolver (Failed to fetch)
+                alert("ERROR CRÍTICO: La conexión al servidor falló. Verifica la URL de Render."); 
             }
         });
     }
 
-    // --------------- REGISTRO (Si está en el mismo archivo) ----------------
-    // Debes incluir la lógica de registro aquí si es que la tienes
+    // --------------- REGISTRO y LOGOUT (Mantenemos la estructura) ----------------
     const registroForm = document.querySelector("#registroForm");
     if (registroForm) {
         // ... Lógica de registro ...
@@ -90,7 +90,6 @@ document.addEventListener("DOMContentLoaded", () => {
 function logout() {
     localStorage.removeItem("usuario");
     firebase.auth().signOut().then(() => {
-        // Redirigir a la página de login después de cerrar la sesión de Firebase
         window.location.href = "login.html"; 
     });
 }
