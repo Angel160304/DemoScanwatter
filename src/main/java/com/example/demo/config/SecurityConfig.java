@@ -15,7 +15,7 @@ public class SecurityConfig {
     // --- 💡 EXCLUSIÓN DE RECURSOS ESTÁTICOS ---
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        // Ignora archivos estáticos para evitar que Spring Security los intercepte con 302/403
+        // Ignora archivos estáticos
         return (web) -> web.ignoring().requestMatchers(
             new AntPathRequestMatcher("/js/**"), 
             new AntPathRequestMatcher("/css/**"),
@@ -29,7 +29,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(requests -> requests
-                // Permitir API de login y páginas públicas (login/registro/index)
+                // Permitir API de login y páginas públicas
                 .requestMatchers("/api/login/firebase", "/login.html", "/registro.html", "/index.html").permitAll() 
                 
                 // REQUERIR AUTENTICACIÓN para el Dashboard
@@ -39,7 +39,6 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             // 💡 SOLUCIÓN CRÍTICA: Desactivar formLogin.
-            // Esto evita que Spring Security interfiera con la sesión que creas en tu controlador REST.
             .formLogin(form -> form.disable()) 
             
             .logout(logout -> logout.permitAll())
