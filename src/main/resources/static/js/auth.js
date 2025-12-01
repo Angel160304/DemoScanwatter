@@ -57,50 +57,52 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --------------- LOGIN (CRÍTICO) ------------------
-    const loginForm = document.querySelector("#loginForm");
-    if (loginForm) {
-        loginForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const email = document.querySelector("#logEmail").value.trim();
-            const pass = document.querySelector("#logPassword").value.trim();
+   // --------------- LOGIN (VERSION DE PRUEBA) ------------------
+const loginForm = document.querySelector("#loginForm");
+if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault(); // Detenemos el formulario a la fuerza
+        
+        const email = document.querySelector("#logEmail").value.trim();
+        const pass = document.querySelector("#logPassword").value.trim();
 
-            if (!validarEmail(email)) return alert("El correo no es válido");
-            if (pass.length < 6) return alert("La contraseña es demasiado corta");
+        if (!validarEmail(email)) return alert("El correo no es válido");
+        if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
-            try {
-                // 1. Iniciar sesión con Firebase
-                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
-                const user = userCredential.user;
+        try {
+            // 💡 1. SALTAMOS FIREBASE y asumimos que estamos autenticados.
+            console.log("Simulando autenticación exitosa. Enviando token a Spring...");
+            
+            // Usamos un token de prueba, Spring Boot fallará al validarlo, 
+            // ¡pero veremos si la llamada POST se realiza!
+            const token = "TOKEN_DE_PRUEBA_EXITOSA"; 
 
-                // 2. Obtener el ID Token (JWT)
-                const token = await user.getIdToken();
+            // 💡 2. FORZAMOS EL ENVÍO DEL TOKEN AL BACKEND DE SPRING BOOT
+            const response = await fetch('/api/login/firebase', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token: token })
+            });
 
-                // 3. 💡 Enviar el Token al backend de Spring Boot para crear la sesión de Spring Security
-                const response = await fetch('/api/login/firebase', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ token: token })
-                });
-
-                if (!response.ok) {
-                    const errorMsg = await response.text();
-                    // Si falla el backend, mostramos un error pero evitamos redirigir al dashboard
-                    throw new Error(`Fallo al crear sesión en el servidor: ${errorMsg}`);
-                }
-
-                // 4. Éxito: Guardar en localStorage y redirigir
-                localStorage.setItem("usuario", email);
-                window.location.href = "/dashboard"; // Redirigir al Dashboard protegido
-
-            } catch (err) {
-                console.error("Error de autenticación o sesión:", err);
-                alert("Error al autenticar, verifica tus credenciales.");
+            if (!response.ok) {
+                const errorMsg = await response.text();
+                // Si la conexión falla, veremos este error.
+                throw new Error(`Fallo de conexión con Spring: ${errorMsg}`);
             }
-        });
-    }
+
+            // 3. Éxito de conexión (Aunque Spring falle la validación del token)
+            localStorage.setItem("usuario", email);
+            window.location.href = "/dashboard"; 
+
+        } catch (err) {
+            console.error("Error en la prueba de conexión:", err);
+            alert("Error de conexión con el servidor: " + err.message);
+            return;
+        }
+    });
+}
 });
 
 // =================== CERRAR SESIÓN ===================
