@@ -9,11 +9,15 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+// Archivo: com.example.demo.config.SecurityConfig.java (VERSIÓN SEGURA)
+
+// ... (imports) ...
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // --- IGNORAR RECURSOS ESTÁTICOS ---
+    // 💡 Dejamos la exclusión de estáticos (WebSecurityCustomizer) para evitar el 302
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(
@@ -24,21 +28,22 @@ public class SecurityConfig {
         );
     }
     
-    // --- FILTRO PRINCIPAL (CONFIGURACIÓN DE PRUEBA ABIERTA) ---
+    // --- FILTRO PRINCIPAL: PROTEGE EL DASHBOARD ---
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(requests -> requests
-                // 💡 Permitimos todas las peticiones GET (incluyendo /dashboard) para la prueba.
-                .requestMatchers(HttpMethod.GET, "/**").permitAll() 
+                // Permitir API de login y las páginas HTML
+                .requestMatchers("/api/login/firebase", "/login.html", "/registro.html", "/index.html").permitAll() 
                 
-                // Permitimos la API de login de Firebase (POST)
-                .requestMatchers(HttpMethod.POST, "/api/login/firebase").permitAll()
+                // REQUERIR AUTENTICACIÓN para el Dashboard
+                .requestMatchers("/dashboard").authenticated()
                 
-                // El resto (otras peticiones POST, PUT, DELETE, etc.) sigue protegido.
+                // El resto de rutas requiere autenticación
                 .anyRequest().authenticated()
             )
-            // Ya no necesitamos formLogin/logout ya que las rutas GET son abiertas
+            .formLogin(form -> form.loginPage("/login.html").permitAll())
+            .logout(logout -> logout.permitAll())
             .csrf(csrf -> csrf.disable()); 
             
         return http.build();
