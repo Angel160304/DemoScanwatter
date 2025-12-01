@@ -17,17 +17,20 @@ public class SecurityConfig {
     // ... (Tu método securityFilterChain se mantiene igual, protegiendo el Dashboard) ...
 
     // --- 💡 SOLUCIÓN FINAL AL 302/MIME TYPE ERROR ---
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        // Le dice a Spring Security que ignore COMPLETAMENTE el filtro de seguridad
-        // para la carga de estos recursos. Esto garantiza que el servidor devuelva el 200 OK.
-        return (web) -> web.ignoring().requestMatchers(
-            new AntPathRequestMatcher("/js/**"),
-            new AntPathRequestMatcher("/css/**"),
-            new AntPathRequestMatcher("/img/**"),
-            new AntPathRequestMatcher("/manifest.json")
-        );
-    }
+    // En SecurityConfig.java
+@Bean
+public WebSecurityCustomizer webSecurityCustomizer() {
+    return (web) -> web.ignoring().requestMatchers(
+        // Rutas para la subcarpeta /js/
+        new AntPathRequestMatcher("/js/**"), 
+        // Rutas para archivos .js en la raíz del servidor (por si es lo que Render o Spring ven)
+        new AntPathRequestMatcher("/*.js"), 
+        // Otros estáticos
+        new AntPathRequestMatcher("/css/**"),
+        new AntPathRequestMatcher("/img/**"),
+        new AntPathRequestMatcher("/manifest.json")
+    );
+}
 
     // --- Tu método securityFilterChain DEBE seguir protegiendo el Dashboard ---
     @Bean
