@@ -2,22 +2,18 @@ package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; // 💡 ¡ESTA ES LA IMPORTACIÓN FALTANTE!
+import org.springframework.http.HttpMethod; 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-// Archivo: com.example.demo.config.SecurityConfig.java (VERSIÓN SEGURA)
-
-// ... (imports) ...
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // 💡 Dejamos la exclusión de estáticos (WebSecurityCustomizer) para evitar el 302
+    // --- 💡 EXCLUSIÓN DE RECURSOS ESTÁTICOS ---
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers(
@@ -28,7 +24,7 @@ public class SecurityConfig {
         );
     }
     
-    // --- FILTRO PRINCIPAL: PROTEGE EL DASHBOARD ---
+    // --- FILTRO PRINCIPAL: PROTEGE EL DASHBOARD Y GESTIONA EL LOGIN ---
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -42,7 +38,12 @@ public class SecurityConfig {
                 // El resto de rutas requiere autenticación
                 .anyRequest().authenticated()
             )
-            .formLogin(form -> form.loginPage("/login.html").permitAll())
+            // 💡 MODIFICACIÓN CLAVE: Definir la URL de éxito explícita.
+            .formLogin(form -> form
+                .loginPage("/login.html")
+                .defaultSuccessUrl("/dashboard", true) // ⬅️ Redirige siempre a /dashboard después de un login exitoso
+                .permitAll()
+            )
             .logout(logout -> logout.permitAll())
             .csrf(csrf -> csrf.disable()); 
             
