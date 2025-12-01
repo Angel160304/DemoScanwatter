@@ -2,7 +2,6 @@ package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,6 +15,7 @@ public class SecurityConfig {
     // --- 💡 EXCLUSIÓN DE RECURSOS ESTÁTICOS ---
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
+        // Ignora archivos estáticos para evitar que Spring Security los intercepte con 302/403
         return (web) -> web.ignoring().requestMatchers(
             new AntPathRequestMatcher("/js/**"), 
             new AntPathRequestMatcher("/css/**"),
@@ -24,12 +24,12 @@ public class SecurityConfig {
         );
     }
     
-    // --- FILTRO PRINCIPAL: PROTEGE EL DASHBOARD Y GESTIONA EL LOGIN ---
+    // --- FILTRO PRINCIPAL: PROTEGE EL DASHBOARD ---
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(requests -> requests
-                // Permitir API de login y las páginas HTML
+                // Permitir API de login y páginas públicas (login/registro/index)
                 .requestMatchers("/api/login/firebase", "/login.html", "/registro.html", "/index.html").permitAll() 
                 
                 // REQUERIR AUTENTICACIÓN para el Dashboard
@@ -38,12 +38,10 @@ public class SecurityConfig {
                 // El resto de rutas requiere autenticación
                 .anyRequest().authenticated()
             )
-            // 💡 MODIFICACIÓN CLAVE: Definir la URL de éxito explícita.
-            .formLogin(form -> form
-                .loginPage("/login.html")
-                .defaultSuccessUrl("/dashboard", true) // ⬅️ Redirige siempre a /dashboard después de un login exitoso
-                .permitAll()
-            )
+            // 💡 SOLUCIÓN CRÍTICA: Desactivar formLogin.
+            // Esto evita que Spring Security interfiera con la sesión que creas en tu controlador REST.
+            .formLogin(form -> form.disable()) 
+            
             .logout(logout -> logout.permitAll())
             .csrf(csrf -> csrf.disable()); 
             
