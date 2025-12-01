@@ -57,11 +57,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-   // --------------- LOGIN (VERSION DE PRUEBA) ------------------
-const loginForm = document.querySelector("#loginForm");
-if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
-        e.preventDefault(); // Detenemos el formulario a la fuerza
+   // --------------- LOGIN (VERSIÓN CON CLICK) ------------------
+const loginButton = document.querySelector(".submit"); // O document.querySelector("#loginButton")
+if (loginButton) {
+    loginButton.addEventListener("click", async (e) => {
+        // e.preventDefault() YA NO ES NECESARIO si el botón es type="button"
         
         const email = document.querySelector("#logEmail").value.trim();
         const pass = document.querySelector("#logPassword").value.trim();
@@ -70,11 +70,8 @@ if (loginForm) {
         if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
         try {
-            // 💡 1. SALTAMOS FIREBASE y asumimos que estamos autenticados.
+            // 💡 1. SALTAMOS FIREBASE
             console.log("Simulando autenticación exitosa. Enviando token a Spring...");
-            
-            // Usamos un token de prueba, Spring Boot fallará al validarlo, 
-            // ¡pero veremos si la llamada POST se realiza!
             const token = "TOKEN_DE_PRUEBA_EXITOSA"; 
 
             // 💡 2. FORZAMOS EL ENVÍO DEL TOKEN AL BACKEND DE SPRING BOOT
@@ -88,11 +85,10 @@ if (loginForm) {
 
             if (!response.ok) {
                 const errorMsg = await response.text();
-                // Si la conexión falla, veremos este error.
                 throw new Error(`Fallo de conexión con Spring: ${errorMsg}`);
             }
 
-            // 3. Éxito de conexión (Aunque Spring falle la validación del token)
+            // 3. Éxito de conexión 
             localStorage.setItem("usuario", email);
             window.location.href = "/dashboard"; 
 
@@ -102,6 +98,7 @@ if (loginForm) {
             return;
         }
     });
+
 }
 });
 
