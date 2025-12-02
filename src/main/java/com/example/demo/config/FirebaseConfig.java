@@ -23,13 +23,15 @@ public class FirebaseConfig {
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
         
-        // 🛑 CRÍTICO: Imprimir la ruta que Spring está intentando usar (solo para logs de Render)
+        // Mensaje de diagnóstico para el log de Render
         System.out.println("DEBUG: Intentando cargar clave Firebase desde la ruta: " + firebaseSdkPath);
 
+        // Usamos try-with-resources para asegurar que el stream se cierre
         try (InputStream serviceAccount = new FileInputStream(firebaseSdkPath)) {
             
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                // ❌ SE ELIMINA: .setHttpTimeout(30000) (Causaba el error de compilación)
                 .build();
             
             if (FirebaseApp.getApps().isEmpty()) {
@@ -39,7 +41,7 @@ public class FirebaseConfig {
             return FirebaseApp.getInstance();
 
         } catch (IOException e) {
-            // 🛑 MENSAJE DE ERROR MEJORADO: Indica claramente que la lectura del archivo falló
+            // Error CRÍTICO si el archivo no se encuentra o no se puede leer
             System.err.println("❌ CRÍTICO: Falla al leer el archivo secreto de Firebase.");
             throw new IOException("Falla al inicializar Firebase Admin SDK. No se encontró el archivo: " + firebaseSdkPath + ". Razón original: " + e.getMessage(), e);
         }
@@ -47,6 +49,12 @@ public class FirebaseConfig {
 
     @Bean
     public FirebaseAuth firebaseAuth(FirebaseApp firebaseApp) {
-        return FirebaseAuth.getInstance(firebaseApp); 
+        // Obtenemos la instancia de FirebaseAuth
+        FirebaseAuth auth = FirebaseAuth.getInstance(firebaseApp);
+        
+        // ❌ SE ELIMINA: auth.getClient().setTimeTolerance(300) (Causaba el error de compilación)
+        
+        System.out.println("DEBUG: FirebaseAuth inicializado.");
+        return auth; 
     }
 }
