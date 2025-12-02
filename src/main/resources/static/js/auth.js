@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (loginButton) {
         loginButton.addEventListener("click", async (e) => {
-            e.preventDefault(); // Siempre buena práctica en formularios
+            e.preventDefault(); 
             
             const email = document.querySelector("#logEmail").value.trim();
             const pass = document.querySelector("#logPassword").value.trim();
@@ -54,24 +54,36 @@ document.addEventListener("DOMContentLoaded", () => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    // 🛑 CRÍTICO: Eliminar 'credentials: include' y enviar el token en el BODY
-                    body: JSON.stringify({ idToken: token }), // Asegúrate de que coincida con LoginRequest en Java
+                    // ✅ CORREGIDO: Usamos 'idToken' para que coincida con el backend de Spring Boot
+                    body: JSON.stringify({ idToken: token }), 
                 });
 
-                if (response.status === 403) {
-                     // 403 persistente significa que el cambio a Stateless no funcionó, pero al menos no es de sesión.
-                    throw new Error("El servidor rechazó la solicitud (403). Confirma que la configuración de Spring Boot está en modo STATLESS.");
-                }
-                
+                // --- 🛑 LÓGICA DE MANEJO DE ERRORES ROBUSTA (JSON o Texto) ---
                 if (!response.ok) {
-                    const errorJson = await response.json();
-                    const errorMsg = errorJson.message || `Error status: ${response.status}`;
-                    throw new Error(`Fallo al validar token en el servidor: ${errorMsg}`);
+                    let errorMsg;
+                    try {
+                        // Intenta leer el cuerpo como JSON (para errores 400/500 estructurados)
+                        const errorJson = await response.json();
+                        errorMsg = errorJson.message || errorJson.error || `Error status: ${response.status}`;
+                    } catch (e) {
+                        // Si falla la lectura de JSON (ej: respuesta 401/403 con texto plano o errores de Cloudflare)
+                        const errorText = await response.text();
+                        errorMsg = errorText || `Error del servidor con estado ${response.status}`;
+
+                        // Manejo de errores específicos del backend
+                        if (errorMsg.includes("Token ID is required")) {
+                            errorMsg = "Fallo de validación: El token no fue enviado correctamente.";
+                        }
+                    }
+
+                    // Lanzar el error para que sea capturado por el 'catch'
+                    throw new Error(`Fallo al validar token: ${errorMsg}`);
                 }
+                // --- FIN DE LA LÓGICA DE MANEJO DE ERRORES ---
                 
                 // 4. ✅ Éxito: Almacenar el token y redirigir
                 localStorage.setItem("usuario", email);
-                localStorage.setItem("firebaseIdToken", token); // 🛑 CRÍTICO: Guardar el token para futuras peticiones
+                localStorage.setItem("firebaseIdToken", token); // Guardar el token para futuras peticiones
                 
                 window.location.href = "/dashboard"; 
 
@@ -82,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --------------- REGISTRO y LOGOUT (Aseguramos que logout también borre el token) ----------------
+    // --------------- REGISTRO y LOGOUT ----------------
     const registroForm = document.querySelector("#registroForm");
     if (registroForm) {
         // ... Lógica de registro ...
@@ -92,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // =================== CERRAR SESIÓN ===================
 function logout() {
     localStorage.removeItem("usuario");
-    localStorage.removeItem("firebaseIdToken"); // 🛑 CRÍTICO: Borrar el token al cerrar sesión
+    localStorage.removeItem("firebaseIdToken"); // Borrar el token al cerrar sesión
     firebase.auth().signOut().then(() => {
         window.location.href = "login.html"; 
     });
