@@ -17,26 +17,32 @@ import java.io.InputStream;
 @Configuration
 public class FirebaseConfig { 
 
-    // Inyectamos la ruta completa del archivo en el sistema de archivos de Render
     @Value("${firebase.sdk.path}") 
     private String firebaseSdkPath;
 
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
         
-        // Abrimos un InputStream directamente usando la ruta del sistema de archivos
+        // 🛑 CRÍTICO: Imprimir la ruta que Spring está intentando usar (solo para logs de Render)
+        System.out.println("DEBUG: Intentando cargar clave Firebase desde la ruta: " + firebaseSdkPath);
+
         try (InputStream serviceAccount = new FileInputStream(firebaseSdkPath)) {
             
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .build();
             
-            // Inicializa la aplicación si no existe
             if (FirebaseApp.getApps().isEmpty()) {
+                System.out.println("DEBUG: Firebase SDK inicializado exitosamente.");
                 return FirebaseApp.initializeApp(options);
             }
             return FirebaseApp.getInstance();
-        } 
+
+        } catch (IOException e) {
+            // 🛑 MENSAJE DE ERROR MEJORADO: Indica claramente que la lectura del archivo falló
+            System.err.println("❌ CRÍTICO: Falla al leer el archivo secreto de Firebase.");
+            throw new IOException("Falla al inicializar Firebase Admin SDK. No se encontró el archivo: " + firebaseSdkPath + ". Razón original: " + e.getMessage(), e);
+        }
     }
 
     @Bean
