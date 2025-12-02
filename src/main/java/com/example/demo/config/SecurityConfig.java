@@ -1,4 +1,4 @@
-// Archivo: com.example.demo.config.SecurityConfig.java (MODIFICADO)
+// Archivo: com.example.demo.config.SecurityConfig.java
 
 package com.example.demo.config;
 
@@ -12,16 +12,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; // NUEVO IMPORT
-import org.springframework.beans.factory.annotation.Autowired; // NUEVO IMPORT
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; 
+import org.springframework.beans.factory.annotation.Autowired; 
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     
-    private final FirebaseTokenFilter firebaseTokenFilter; // 1. Campo para inyectar el filtro
+    // 1. Inyección del nuevo filtro de Firebase
+    private final FirebaseTokenFilter firebaseTokenFilter; 
 
-    // 2. Constructor para inyectar el filtro
     @Autowired
     public SecurityConfig(FirebaseTokenFilter firebaseTokenFilter) {
         this.firebaseTokenFilter = firebaseTokenFilter;
@@ -46,7 +46,7 @@ public class SecurityConfig {
             )
             
             // 3. Añadir el filtro de Firebase ANTES de la verificación estándar de Spring
-            .addFilterBefore(firebaseTokenFilter, UsernamePasswordAuthenticationFilter.class) // LÍNEA CRÍTICA
+            .addFilterBefore(firebaseTokenFilter, UsernamePasswordAuthenticationFilter.class) 
             
             // 4. Definir reglas de autorización 
             .authorizeHttpRequests(auth -> auth
@@ -57,15 +57,14 @@ public class SecurityConfig {
                     "/api/login/**", 
                     "/api/registro/**", 
                     
-                    // Archivos HTML exactos
-                    "/login.html", 
-                    "/registro.html",   
-                    "/index.html",
+                    // Comodín para cualquier archivo HTML en la raíz
+                    "/*.html",       
                     
-                    // Archivos estáticos en la raíz (¡Uso de comodines más seguros!)
-                    "/*.ico",          
-                    "/*.json",        
-                    "/*.css",          
+                    // Acceso a archivos estáticos en la raíz (incluye favicon y manifest)
+                    "/*.ico", 
+                    "/favicon.ico", // Ruta exacta para el favicon (doble seguridad)
+                    "/*.json", 
+                    "/*.css", 
                     "/*.js",
                     
                     // Comodines de subdirectorio (el doble * es clave)

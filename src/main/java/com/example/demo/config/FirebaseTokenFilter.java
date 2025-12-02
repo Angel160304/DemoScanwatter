@@ -1,3 +1,5 @@
+// Archivo: com.example.demo.config.FirebaseTokenFilter.java
+
 package com.example.demo.config;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,7 +42,7 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 2. Extraer el JWT
+        // 2. Extraer el JWT (ignorar "Bearer ")
         String authToken = header.substring(7);
 
         try {
@@ -60,7 +62,7 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             
         } catch (FirebaseAuthException e) {
-            // Token inválido (esto ocurre con el error 401 que ves)
+            // Token inválido (esto causará un 403/401 más adelante si la ruta es protegida)
             System.err.println("Firebase Token Invalido: " + e.getMessage());
         }
 
