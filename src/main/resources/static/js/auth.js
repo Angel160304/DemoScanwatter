@@ -58,26 +58,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // --- 🛑 LÓGICA DE MANEJO DE ERRORES CORREGIDA (Lectura Única) ---
                 if (!response.ok) {
-                    
-                    // Leer el cuerpo de la respuesta UNA SOLA VEZ como texto
                     const responseText = await response.text();
                     let errorMsg;
                     
                     try {
-                        // Intenta parsear el texto leído como JSON
                         const errorJson = JSON.parse(responseText);
                         errorMsg = errorJson.message || errorJson.error || `Error status: ${response.status}`;
                     } catch (e) {
-                        // Si falla el parseo, usar el texto plano
                         errorMsg = responseText || `Error del servidor con estado ${response.status}`;
-                        
-                        // Si el error es el 401 no estructurado de Firebase/Spring
                         if (errorMsg.includes("Invalid to") || response.status === 401) {
                             errorMsg = "Token de Firebase Inválido o Expirado. Por favor, inicia sesión de nuevo.";
                         }
                     }
-
-                    // Lanzar el error
                     throw new Error(`Fallo al validar token: ${errorMsg}`);
                 }
                 // --- FIN DE LA LÓGICA DE MANEJO DE ERRORES ---
@@ -95,10 +87,32 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --------------- REGISTRO y LOGOUT ----------------
+    // --------------- REGISTRO ------------------
     const registroForm = document.querySelector("#registroForm");
     if (registroForm) {
-        // ... Lógica de registro ...
+        registroForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById("regEmail").value.trim();
+            const password = document.getElementById("regPassword").value.trim();
+            const confirmPass = document.getElementById("regConfirm").value.trim();
+
+            if (password !== confirmPass) return alert("Las contraseñas no coinciden");
+            if (!validarEmail(email)) return alert("El correo no es válido");
+            if (password.length < 6) return alert("La contraseña debe tener al menos 6 caracteres.");
+
+            try {
+                // Crear el usuario en Firebase (Client-side)
+                await firebase.auth().createUserWithEmailAndPassword(email, password);
+                
+                alert("¡Registro exitoso! Por favor, inicia sesión.");
+                window.location.href = "login.html";
+
+            } catch (error) {
+                alert("Error al registrar usuario: " + error.message);
+                console.error("Error de registro:", error);
+            }
+        });
     }
 });
 
