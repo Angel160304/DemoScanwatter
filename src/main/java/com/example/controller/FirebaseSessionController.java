@@ -4,6 +4,8 @@ package com.example.controller;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
+// ... otras importaciones ...
+import org.springframework.beans.factory.annotation.Autowired; // ⬅️ AÑADIR ESTA
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -15,13 +17,13 @@ import org.springframework.http.ResponseEntity;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-// Si tu versión de Spring Boot usa javax.servlet en lugar de jakarta, usa:
-// import javax.servlet.http.HttpServletRequest;
-// import javax.servlet.http.HttpSession;
-
 @RestController
 @RequestMapping("/api/login")
 public class FirebaseSessionController {
+
+    // 🛑 CRÍTICO: Inyectar el Bean de FirebaseAuth que creaste en FirebaseConfig
+    @Autowired 
+    private FirebaseAuth firebaseAuth; 
 
     @PostMapping("/firebase")
     public ResponseEntity<String> createSession(@RequestBody TokenRequest tokenRequest, HttpServletRequest request) {
@@ -32,7 +34,8 @@ public class FirebaseSessionController {
         
         try {
             // 1. Validar el token con Firebase Admin SDK
-            FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+            // 🛑 CRÍTICO: Usar el objeto 'firebaseAuth' inyectado
+            FirebaseToken firebaseToken = firebaseAuth.verifyIdToken(idToken); 
             String uid = firebaseToken.getUid();
             
             // 2. Crear el objeto de autenticación de Spring Security
@@ -53,7 +56,8 @@ public class FirebaseSessionController {
 
         } catch (Exception e) {
             System.err.println("Firebase Auth Error: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is invalid or expired.");
+            // Devolver 401 para indicar fallo de autenticación, no 403 (Forbidden)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is invalid or expired: " + e.getMessage());
         }
     }
 
