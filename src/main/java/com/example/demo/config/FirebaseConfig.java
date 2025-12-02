@@ -29,8 +29,7 @@ public class FirebaseConfig {
             
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                // Las líneas problemáticas han sido removidas
-                .build();
+                .build(); // Línea 35: Ya no contiene setHttpTimeout
             
             if (FirebaseApp.getApps().isEmpty()) {
                 System.out.println("DEBUG: Firebase SDK inicializado exitosamente.");
@@ -47,7 +46,7 @@ public class FirebaseConfig {
     @Bean
     public FirebaseAuth firebaseAuth(FirebaseApp firebaseApp) {
         FirebaseAuth auth = FirebaseAuth.getInstance(firebaseApp);
-        // Las líneas problemáticas han sido removidas
+        // Línea 59: Ya no contiene auth.getClient().setTimeTolerance
         System.out.println("DEBUG: FirebaseAuth inicializado.");
         return auth; 
     }
