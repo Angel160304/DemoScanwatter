@@ -7,10 +7,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
-// 🛑 Importaciones para CORS
+// 🛑 Importaciones para CORS y Session
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.config.http.SessionCreationPolicy; // NUEVO
 import java.util.Arrays;
 
 
@@ -31,7 +32,12 @@ public class SecurityConfig {
             // 2. Aplicar la configuración de CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             
-            // 3. Definir reglas de autorización (Reglas normales)
+            // 🛑 CRÍTICO: Deshabilitar la gestión de sesiones automática (debe ser creada en el controlador)
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
+            )
+            
+            // 3. Definir reglas de autorización 
             .authorizeHttpRequests(auth -> auth
                 // Permitir acceso sin autenticar a la API de login y a recursos estáticos
                 .requestMatchers("/api/login/**", "/login.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
