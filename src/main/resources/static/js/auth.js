@@ -91,8 +91,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             try {
                 await firebase.auth().signInWithEmailAndPassword(email, pass);
+
+                // Guardar usuario local
                 localStorage.setItem("usuario", email);
-                window.location.href = "dashboard"; // 🔹 Spring lo resuelve
+
+                // 🔹 REDIRECCIÓN CORREGIDA
+                window.location.href = "index.html";
+
             } catch (err) {
                 console.error("Firebase Login Error:", err);
                 alert("Error al autenticar, verifica tus credenciales.");
@@ -107,6 +112,6 @@ function logout() {
     localStorage.removeItem("usuario");
 
     firebase.auth().signOut().then(() => {
-        window.location.href = "login.html"; // 🔹 SIN / para que cargue desde static
+        window.location.href = "login.html"; // Carga correcta desde /static
     });
 }
