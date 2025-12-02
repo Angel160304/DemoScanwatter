@@ -1,4 +1,4 @@
-// Archivo: com.example.demo.config.SecurityConfig.java
+// Archivo: com.example.demo.config.SecurityConfig.java (MODIFICADO)
 
 package com.example.demo.config;
 
@@ -12,10 +12,20 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; // NUEVO IMPORT
+import org.springframework.beans.factory.annotation.Autowired; // NUEVO IMPORT
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    
+    private final FirebaseTokenFilter firebaseTokenFilter; // 1. Campo para inyectar el filtro
+
+    // 2. Constructor para inyectar el filtro
+    @Autowired
+    public SecurityConfig(FirebaseTokenFilter firebaseTokenFilter) {
+        this.firebaseTokenFilter = firebaseTokenFilter;
+    }
     
     /**
      * Define el SecurityFilterChain: Reglas de autorización y filtros de seguridad.
@@ -35,7 +45,10 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
             )
             
-            // 3. Definir reglas de autorización 
+            // 3. Añadir el filtro de Firebase ANTES de la verificación estándar de Spring
+            .addFilterBefore(firebaseTokenFilter, UsernamePasswordAuthenticationFilter.class) // LÍNEA CRÍTICA
+            
+            // 4. Definir reglas de autorización 
             .authorizeHttpRequests(auth -> auth
                 // 🛑 RUTAS PÚBLICAS Y ESTATICAS: EXCLUSIÓN ROBUSTA
                 .requestMatchers(
@@ -50,18 +63,18 @@ public class SecurityConfig {
                     "/index.html",
                     
                     // Archivos estáticos en la raíz (¡Uso de comodines más seguros!)
-                    "/*.ico",          // /favicon.ico
-                    "/*.json",        // /manifest.json
+                    "/*.ico",          
+                    "/*.json",        
                     "/*.css",          
                     "/*.js",
                     
                     // Comodines de subdirectorio (el doble * es clave)
-                    "/images/**",
+                    "/images/**", 
                     "/css/**", 
                     "/js/**" 
                 ).permitAll()
                 
-                // Requerir autenticación para cualquier otra solicitud
+                // Requerir autenticación para cualquier otra solicitud (ej: /dashboard)
                 .anyRequest().authenticated()
             )
             // Deshabilitar login basado en formulario y autenticación básica
