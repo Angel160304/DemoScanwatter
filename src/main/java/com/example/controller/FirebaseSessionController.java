@@ -7,12 +7,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
+// import org.springframework.security.core.userdetails.User; // ⬅️ IMPORTACIÓN ELIMINADA (Ya no se necesita)
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.beans.factory.annotation.Autowired; // ⬅️ AÑADIR
+import org.springframework.beans.factory.annotation.Autowired; 
+import org.springframework.security.core.Authentication; // ⬅️ Importación requerida para la interfaz Authentication
+
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -21,26 +23,30 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/api/login")
 public class FirebaseSessionController {
 
-    // 🛑 CRÍTICO: Inyectar el Bean de FirebaseAuth configurado
     @Autowired 
     private FirebaseAuth firebaseAuth; 
 
     @PostMapping("/firebase")
     public ResponseEntity<String> createSession(@RequestBody TokenRequest tokenRequest, HttpServletRequest request) {
         String idToken = tokenRequest.getToken();
-        // ... (resto de la lógica) ...
+        
+        if (idToken == null || idToken.isEmpty()) {
+            return ResponseEntity.badRequest().body("Token is required");
+        }
         
         try {
-            // 🛑 CRÍTICO: Usar el objeto 'firebaseAuth' inyectado
-            // Antes estaba: FirebaseAuth.getInstance().verifyIdToken(idToken);
+            // 1. Validar el token con el Bean inyectado
             FirebaseToken firebaseToken = firebaseAuth.verifyIdToken(idToken); 
             String uid = firebaseToken.getUid();
             
-            // ... (resto de la lógica de creación de sesión de Spring) ...
-            User springUser = new User(uid, "", java.util.Collections.emptyList());
-            UsernamePasswordAuthenticationToken authentication = 
-                new UsernamePasswordAuthenticationToken(springUser, null, springUser.getAuthorities());
+            // 🛑 CRÍTICO: 2. Crear el objeto de autenticación de Spring Security (Forma Simplificada)
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                uid, // Principal: el UID de Firebase
+                null, // Credenciales: null
+                java.util.Collections.emptyList() // Autoridades/Roles
+            );
 
+            // 3. Crear la Sesión de Spring Security y guardar el contexto
             HttpSession session = request.getSession(true);
             
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -51,7 +57,6 @@ public class FirebaseSessionController {
 
         } catch (Exception e) {
             System.err.println("Firebase Auth Error: " + e.getMessage());
-            // Se usa UNAUTHORIZED (401) en lugar de Forbidden (403)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is invalid or expired: " + e.getMessage());
         }
     }

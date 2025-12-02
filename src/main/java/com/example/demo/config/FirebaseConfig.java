@@ -1,3 +1,5 @@
+// Archivo: com.example.demo.config.FirebaseConfig.java
+
 package com.example.demo.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
@@ -23,7 +25,6 @@ public class FirebaseConfig {
     public FirebaseApp firebaseApp() throws IOException {
         
         // Abrimos un InputStream directamente usando la ruta del sistema de archivos
-        // En Render, esto leerá el archivo desde /etc/secrets/...
         try (InputStream serviceAccount = new FileInputStream(firebaseSdkPath)) {
             
             FirebaseOptions options = FirebaseOptions.builder()
