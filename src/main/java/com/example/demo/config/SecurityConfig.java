@@ -12,7 +12,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-// ... (Otras importaciones)
 
 @Configuration
 @EnableWebSecurity
@@ -40,30 +39,34 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 🛑 RUTAS PÚBLICAS Y ESTATICAS: EXCLUSIÓN ROBUSTA
                 .requestMatchers(
-                    "/", // La ruta raíz
+                    // Rutas de API y raíz
+                    "/", 
                     "/api/login/**", 
                     "/api/registro/**", 
+                    
+                    // Archivos HTML exactos
                     "/login.html", 
-                    "/registro.html",   // ⬅️ Permiso explícito para la página
-                    "/index.html",      // Página principal
-                    "/favicon.ico", 
-                    "/manifest.json",
-                    "/images/**",       // Cualquier imagen
-                    "/css/**",          // Todos los archivos CSS
-                    "/js/**",           // Todos los archivos JS
-                    "/*.css",           // CSS en la raíz
-                    "/*.js",            // JS en la raíz (como auth.js)
-                    "/*.html"           // HTML en la raíz
+                    "/registro.html",   
+                    "/index.html",
+                    
+                    // Archivos estáticos en la raíz (¡Uso de comodines más seguros!)
+                    "/*.ico",          // /favicon.ico
+                    "/*.json",        // /manifest.json
+                    "/*.css",          
+                    "/*.js",
+                    
+                    // Comodines de subdirectorio (el doble * es clave)
+                    "/images/**",
+                    "/css/**", 
+                    "/js/**" 
                 ).permitAll()
                 
-                // Requerir autenticación (via el filtro JWT) para cualquier otra solicitud
+                // Requerir autenticación para cualquier otra solicitud
                 .anyRequest().authenticated()
             )
             // Deshabilitar login basado en formulario y autenticación básica
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable);
-        
-        // ... (Si usas un filtro JWT, debes añadirlo aquí)
         
         return http.build();
     }
