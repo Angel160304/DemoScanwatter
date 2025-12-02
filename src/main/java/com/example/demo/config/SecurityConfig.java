@@ -12,38 +12,45 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig {
 
-// --- 💡 EXCLUSIÓN DE RECURSOS ESTÁTICOS ---
-@Bean
-public WebSecurityCustomizer webSecurityCustomizer() {
- // Ignora archivos estáticos
-return (web) -> web.ignoring().requestMatchers(
- new AntPathRequestMatcher("/js/**"), 
- new AntPathRequestMatcher("/css/**"),
-new AntPathRequestMatcher("/img/**"),
- new AntPathRequestMatcher("/manifest.json")
- );
- }
-// --- FILTRO PRINCIPAL: PROTEGE EL DASHBOARD ---
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-http
-.authorizeHttpRequests(requests -> requests
- // Permitir API de login y páginas públicas
-.requestMatchers("/api/login/firebase", "/login.html", "/registro.html", "/index.html").permitAll() 
-// REQUERIR AUTENTICACIÓN para el Dashboard
-.requestMatchers("/dashboard").authenticated()
- // El resto de rutas requiere autenticación
-.anyRequest().authenticated()
-)
- // 💡 DESACTIVAMOS formLogin para usar nuestra lógica de Firebase/JS
-.formLogin(form -> form.disable()) 
+    // --- 💡 EXCLUSIÓN DE RECURSOS ESTÁTICOS ---
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        // Ignora archivos estáticos
+        return (web) -> web.ignoring().requestMatchers(
+            // 🛑 SOLUCIÓN AL BLOQUEO INICIAL: Excluir auth.js (está en la raíz de static/)
+            new AntPathRequestMatcher("/auth.js"), 
+            
+            new AntPathRequestMatcher("/js/**"), 
+            new AntPathRequestMatcher("/css/**"),
+            new AntPathRequestMatcher("/img/**"),
+            new AntPathRequestMatcher("/manifest.json")
+        );
+    }
+    
+    // --- FILTRO PRINCIPAL: PROTEGE EL DASHBOARD ---
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(requests -> requests
+                // Permitir API de login y páginas públicas
+                .requestMatchers("/api/login/firebase", "/login.html", "/registro.html", "/index.html").permitAll() 
+                
+                // REQUERIR AUTENTICACIÓN para el Dashboard
+                .requestMatchers("/dashboard").authenticated()
+                
+                // El resto de rutas requiere autenticación
+                .anyRequest().authenticated()
+            )
+            // 💡 DESACTIVAMOS formLogin para usar nuestra lógica de Firebase/JS
+            .formLogin(form -> form.disable()) 
 
- .logout(logout -> logout.permitAll())
+            .logout(logout -> logout.permitAll())
 
-// 🛑 SOLUCIÓN CSRF: Ignorar CSRF solo para la API de login de Firebase
-.csrf(csrf -> csrf
-.ignoringRequestMatchers("/api/login/firebase")
- );
- return http.build();
- }
+            // 🛑 SOLUCIÓN CSRF: Ignorar CSRF solo para la API de login de Firebase
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/login/firebase")
+            );
+            
+        return http.build();
+    }
 }
