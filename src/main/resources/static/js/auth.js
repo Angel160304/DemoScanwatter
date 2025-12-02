@@ -1,18 +1,16 @@
 // =================== CONFIGURACIÓN FIREBASE ===================
 const firebaseConfig = {
-  apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
-  authDomain: "scanwatter-1bf04.firebaseapp.com",
-  databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
-  projectId: "scanwatter-1bf04",
-  storageBucket: "scanwatter-1bf04.firebasestorage.app",
-  messagingSenderId: "19246885609",
-  appId: "1:19246885609:web:c50bc7012698ddfcddde78",
-  measurementId: "G-GCR3RHEQQQ"
-
+    apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
+    authDomain: "scanwatter-1bf04.firebaseapp.com",
+    databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
+    projectId: "scanwatter-1bf04",
+    storageBucket: "scanwatter-1bf04.firebasestorage.app",
+    messagingSenderId: "19246885609",
+    appId: "1:19246885609:web:c50bc7012698ddfcddde78",
+    measurementId: "G-GCR3RHEQQQ"
 };
 
 firebase.initializeApp(firebaseConfig);
-
 
 // =================== VALIDACIONES ===================
 function validarEmail(email) {
@@ -37,7 +35,6 @@ function validarPassword(password) {
 
     return true;
 }
-
 
 // =================== EVENTOS ===================
 document.addEventListener("DOMContentLoaded", () => {
@@ -67,12 +64,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Usuario registrado correctamente");
                 window.location.href = "login.html";
             } catch (err) {
-                console.error("Error en registro:", err);
                 alert("Error al registrar: " + err.message);
             }
         });
     }
-
 
     // --------------- LOGIN ------------------
     const loginForm = document.querySelector("#loginForm");
@@ -91,28 +86,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 return alert("La contraseña es demasiado corta");
 
             try {
-                await firebase.auth().signInWithEmailAndPassword(email, pass);
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
+                const user = userCredential.user;
 
-                // Guardar usuario local
+                // 🔹 Guardar ID Token JWT del usuario (para Spring Boot)
+                const token = await user.getIdToken();
+                localStorage.setItem("firebaseIdToken", token);
+
+                // 🔹 Guardar usuario local
                 localStorage.setItem("usuario", email);
 
-                // 🔹 REDIRECCIÓN CORREGIDA
+                // 🔹 REDIRECCIÓN: CORRECTO
                 window.location.href = "index.html";
 
             } catch (err) {
-                console.error("Firebase Login Error:", err);
                 alert("Error al autenticar, verifica tus credenciales.");
             }
         });
     }
 });
 
-
 // =================== CERRAR SESIÓN ===================
 function logout() {
+    localStorage.removeItem("firebaseIdToken");
     localStorage.removeItem("usuario");
 
     firebase.auth().signOut().then(() => {
-        window.location.href = "login.html"; // Carga correcta desde /static
+        window.location.href = "login.html";
     });
 }

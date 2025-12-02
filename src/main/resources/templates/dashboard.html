@@ -3,69 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard - ScanWatter</title>
+
+    <!-- 🔥 SDKs Firebase (OBLIGATORIO) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
-        // 1. Verificar si existe el token de Firebase.
+
+        // =================== 1. Verificar token ===================
         const firebaseToken = localStorage.getItem('firebaseIdToken');
 
-        // 2. Si NO existe, redirigir
         if (!firebaseToken) {
-            alert("Sesión expirada o no iniciada. Por favor, inicia sesión.");
-            window.location.href = 'login.html'; 
-            // CRÍTICO: Usamos throw para detener la ejecución y no intentar cargar Firebase/HTML
-            throw new Error("No hay token, redirigiendo.");
+            alert("Sesión expirada o no iniciada.");
+            window.location.href = 'login.html';
+            throw new Error("Token faltante.");
         }
-        
-        // 3. CRÍTICO: Forzar una petición al backend con el token
-        // Esto ejecuta el FirebaseTokenFilter y establece la autenticación en Spring Security.
+
+        // =================== 2. Autenticar contra el backend ===================
         async function authenticateBackendSession() {
-            // Usa una ruta protegida. /api/check es un ejemplo, pero /dashboard mismo 
-            // debería funcionar ya que la página se carga.
-            const statusUrl = '/api/check'; 
-            
             try {
-                const response = await fetch(statusUrl, {
-                    method: 'GET',
+                const response = await fetch("/api/check", {
+                    method: "GET",
                     headers: {
-                        'Authorization': `Bearer ${firebaseToken}`, // LA CLAVE DEL 403
-                        'Content-Type': 'application/json'
+                        "Authorization": `Bearer ${firebaseToken}`,
+                        "Content-Type": "application/json"
                     }
                 });
-                
+
                 if (!response.ok) {
-                    // Si el backend devuelve 401/403 (token inválido o expirado)
-                    localStorage.removeItem('firebaseIdToken');
-                    alert("Tu sesión es inválida o expirada. Inicia sesión de nuevo.");
-                    window.location.href = 'login.html';
-                    return;
+                    localStorage.removeItem("firebaseIdToken");
+                    alert("Tu sesión ha expirado.");
+                    window.location.href = "login.html";
                 }
-                // Si llegamos aquí, Spring Boot autenticó el token.
-                
             } catch (error) {
-                // Manejar errores de red/conexión
-                console.error("Error de conexión al backend. Podría ser un error de CORS o Red.", error);
+                console.error("Error conectando al backend:", error);
             }
         }
-
-        // Llamar a la función inmediatamente al cargar la página.
-        // Esto asegura que el filtro de seguridad de Spring se ejecute antes de servir el HTML.
         authenticateBackendSession();
 
-        // ⚙️ Configuración Firebase (solo se inicializa si hay token)
-       const firebaseConfig = {
-  apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
-  authDomain: "scanwatter-1bf04.firebaseapp.com",
-  databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
-  projectId: "scanwatter-1bf04",
-  storageBucket: "scanwatter-1bf04.firebasestorage.app",
-  messagingSenderId: "19246885609",
-  appId: "1:19246885609:web:c50bc7012698ddfcddde78",
-  measurementId: "G-GCR3RHEQQQ"
+        // =================== 3. Configuración Firebase ===================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
+            authDomain: "scanwatter-1bf04.firebaseapp.com",
+            databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
+            projectId: "scanwatter-1bf04",
+            storageBucket: "scanwatter-1bf04.firebasestorage.app",
+            messagingSenderId: "19246885609",
+            appId: "1:19246885609:web:c50bc7012698ddfcddde78",
+            measurementId: "G-GCR3RHEQQQ"
         };
+
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
-        
-        // ... (resto de tus funciones loadDay, renderChart, logout) ...
+
+
+        // =================== 4. Cargar datos de Realtime ===================
+        document.addEventListener("DOMContentLoaded", () => {
+
+            firebase.auth().onAuthStateChanged(user => {
+                if (!user) {
+                    alert("Debes iniciar sesión.");
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                cargarMedidas(user.uid);
+            });
+        });
+
+        function cargarMedidas(uid) {
+            const db = firebase.database();
+
+            db.ref(`users/${uid}/medidas`).on("value", snapshot => {
+                const datos = snapshot.val();
+                console.log("Datos del Realtime:", datos);
+
+                if (!datos) {
+                    console.warn("No hay datos para este usuario.");
+                    return;
+                }
+
+                // Aquí puedes invocar tus funciones: loadDay(), renderChart(), etc.
+            });
+        }
+
     </script>
 </head>
+
 <body class="dashboard-body">
+
+    <!-- TU DISEÑO NO FUE MODIFICADO -->
+
+</body>
+</html>
