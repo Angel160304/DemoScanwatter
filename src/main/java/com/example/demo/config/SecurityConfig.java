@@ -1,5 +1,3 @@
-// Archivo: com.example.demo.config.SecurityConfig.java
-
 package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
@@ -19,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @EnableWebSecurity
 public class SecurityConfig {
     
-    // 1. Inyección del nuevo filtro de Firebase
+    // Inyección del filtro de Firebase
     private final FirebaseTokenFilter firebaseTokenFilter; 
 
     @Autowired
@@ -33,6 +31,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         
+        // 🛑 CRÍTICO: Definir permisos para estáticos primero
+        http
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    // Acceso público y estáticos con comodines más amplios
+                    "/", 
+                    "/api/login/**", 
+                    "/api/registro/**",
+                    "/*.html",       // Todos los HTML en la raíz (login.html, registro.html, etc.)
+                    "/*.ico", "/favicon.ico", // Favicon (doble seguridad)
+                    "/*.json", "/*.css", "/*.js", // Archivos estáticos en la raíz
+                    "/images/**", "/css/**", "/js/**" // Carpetas estáticas
+                ).permitAll()
+                
+                // Requerir autenticación para el resto de las rutas (ej: /dashboard, /api/data)
+                .anyRequest().authenticated()
+            );
+
+        // Luego, aplicar las configuraciones de seguridad
         http
             // 1. Desactivar CSRF
             .csrf(AbstractHttpConfigurer::disable) 
@@ -40,43 +57,15 @@ public class SecurityConfig {
             // 2. Aplicar la configuración de CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             
-            // 🛑 CRÍTICO: Asegurar que el servidor es completamente Stateless (sin sesiones HTTP)
+            // 3. Stateless
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
             )
             
-            // 3. Añadir el filtro de Firebase ANTES de la verificación estándar de Spring
+            // 4. Añadir el filtro de Firebase
             .addFilterBefore(firebaseTokenFilter, UsernamePasswordAuthenticationFilter.class) 
             
-            // 4. Definir reglas de autorización 
-            .authorizeHttpRequests(auth -> auth
-                // 🛑 RUTAS PÚBLICAS Y ESTATICAS: EXCLUSIÓN ROBUSTA
-                .requestMatchers(
-                    // Rutas de API y raíz
-                    "/", 
-                    "/api/login/**", 
-                    "/api/registro/**", 
-                    
-                    // Comodín para cualquier archivo HTML en la raíz
-                    "/*.html",       
-                    
-                    // Acceso a archivos estáticos en la raíz (incluye favicon y manifest)
-                    "/*.ico", 
-                    "/favicon.ico", // Ruta exacta para el favicon (doble seguridad)
-                    "/*.json", 
-                    "/*.css", 
-                    "/*.js",
-                    
-                    // Comodines de subdirectorio (el doble * es clave)
-                    "/images/**", 
-                    "/css/**", 
-                    "/js/**" 
-                ).permitAll()
-                
-                // Requerir autenticación para cualquier otra solicitud (ej: /dashboard)
-                .anyRequest().authenticated()
-            )
-            // Deshabilitar login basado en formulario y autenticación básica
+            // 5. Deshabilitar login basado en formulario y autenticación básica
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable);
         

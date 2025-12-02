@@ -1,97 +1,108 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard - ScanWatter</title>
-    <link rel="stylesheet" href="css/style4.css">
+    <meta charset="UTF-8">
+    <title>Dashboard - ScanWatter</title>
+    <link rel="stylesheet" href="css/style4.css">
 
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <script>
-        // ⚙️ Configuración Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
-            authDomain: "scanwatter-1bf04.firebaseapp.com",
-            databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
-            projectId: "scanwatter-1bf04",
-            storageBucket: "scanwatter-1bf04.firebasestorage.app",
-            messagingSenderId: "19246885609",
-            appId: "1:19246885609:web:c50bc7012698ddfcddde78",
-            measurementId: "G-GCR3RHEQQQ"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
+    <!-- 🛑 CRÍTICO: VALIDACIÓN DE SESIÓN DEL CLIENTE -->
+    <script>
+        // 1. Verificar si existe el token de Firebase.
+        const firebaseToken = localStorage.getItem('firebaseIdToken');
 
-        // ❌ Eliminada validación de sesión para que permita entrar sin login
+        // 2. Si NO existe el token, la página está protegida, redirigir al login.
+        if (!firebaseToken) {
+            // Usamos alert para notificar antes de la redirección
+            alert("Sesión expirada o no iniciada. Por favor, inicia sesión.");
+            window.location.href = 'login.html'; // Asegúrate de que esta ruta sea correcta
+        }
 
-        // 📊 Cargar datos del día seleccionado
-        function loadDay() {
-            const date = document.getElementById("datePicker").value;
-            if (!date) return;
+        // ⚙️ Configuración Firebase (solo se inicializa si hay token)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
+            authDomain: "scanwatter-1bf04.firebaseapp.com",
+            databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
+            projectId: "scanwatter-1bf04",
+            storageBucket: "scanwatter-1bf04.firebasestorage.app",
+            messagingSenderId: "19246885609",
+            appId: "1:19246885609:web:c50bc7012698ddfcddde78",
+            measurementId: "G-GCR3RHEQQQ"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+        
+        // 📊 Cargar datos del día seleccionado
+        function loadDay() {
+            const date = document.getElementById("datePicker").value;
+            if (!date) return;
 
-            const ref = database.ref(`datos/${date}`);
-            ref.once('value', snapshot => {
-                const data = snapshot.val() || {};
-                renderChart(data);
-            });
-        }
+            // ⚠️ CRÍTICO: Esta llamada a Firebase RTDB NO necesita el Authorization Header
+            // solo lo necesitan las llamadas a tus endpoints de Spring Boot /api/* protegidos
+            const ref = database.ref(`datos/${date}`);
+            ref.once('value', snapshot => {
+                const data = snapshot.val() || {};
+                renderChart(data);
+            });
+        }
 
-        // 📈 Renderizar gráfico
-        function renderChart(data) {
-            const labels = Object.keys(data);
-            const values = Object.values(data);
+        // 📈 Renderizar gráfico (función igual)
+        function renderChart(data) {
+            const labels = Object.keys(data);
+            const values = Object.values(data);
 
-            const ctx = document.getElementById('chart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: 'Consumo de Agua',
-                        data: values,
-                        borderColor: 'blue',
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-        }
+            const ctx = document.getElementById('chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Consumo de Agua',
+                        data: values,
+                        borderColor: 'blue',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
 
-        // 🔓 Cerrar sesión
-        function logout() {
-            auth.signOut().then(() => {
-                localStorage.removeItem("usuario");
-                localStorage.removeItem("userToken");
-                window.location.href = "login.html";
-            });
-        }
-    </script>
+        // 🔓 Cerrar sesión (función modificada para usar localStorage)
+        function logout() {
+            auth.signOut().then(() => {
+                localStorage.removeItem("usuario");
+                localStorage.removeItem("firebaseIdToken"); // Importante: usar el nombre correcto
+                window.location.href = "login.html";
+            });
+        }
+    </script>
 </head>
 <body class="dashboard-body">
-    <div class="top-buttons">
-        <button onclick="window.location.href='/index.html'">Back</button>
-        <button onclick="logout()">Cerrar Sesión</button>
-    </div>
+    <div class="top-buttons">
+        <button onclick="window.location.href='/index.html'">Back</button>
+        <button onclick="logout()">Cerrar Sesión</button>
+    </div>
 
-    <div class="dashboard-container">
-        <h2>Dashboard - Consumo de Agua</h2>
+    <div class="dashboard-container">
+        <h2>Dashboard - Consumo de Agua</h2>
 
-        <div class="selector-fecha">
-            <label>Selecciona un día:</label>
-            <input type="date" id="datePicker" onchange="loadDay()">
-        </div>
+        <div class="selector-fecha">
+            <label>Selecciona un día:</label>
+            <input type="date" id="datePicker" onchange="loadDay()">
+        </div>
 
-        <div class="chart-container" style="height:400px;">
-            <canvas id="chart"></canvas>
-        </div>
-    </div>
+        <div class="chart-container" style="height:400px;">
+            <canvas id="chart"></canvas>
+        </div>
+    </div>
 </body>
 </html>
