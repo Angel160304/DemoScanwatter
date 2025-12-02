@@ -66,7 +66,10 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 await firebase.auth().signInWithEmailAndPassword(email, pass);
                 localStorage.setItem("usuario", email);
-                window.location.href = "dashboard"; // 🔹 Spring lo resuelve
+
+                // 🔹 REDIRECCIÓN CORREGIDA
+                window.location.href = "index.html";
+
             } catch (err) {
                 console.error("Firebase Login Error:", err);
                 alert("Error al autenticar, verifica tus credenciales.");
