@@ -7,73 +7,75 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; 
+import org.springframework.beans.factory.annotation.Autowired; 
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    private final FirebaseTokenFilter firebaseTokenFilter;
+    
+    private final FirebaseTokenFilter firebaseTokenFilter; 
 
     @Autowired
     public SecurityConfig(FirebaseTokenFilter firebaseTokenFilter) {
         this.firebaseTokenFilter = firebaseTokenFilter;
     }
-
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
+        
         http
             .authorizeHttpRequests(auth -> auth
+                
+                // 1. PERMITIR ACCESO A RECURSOS ESTÁTICOS Y PÚBLICOS
                 .requestMatchers(
-                    // Acceso público (Login, Registro, Estáticos)
-                    "/",
-                    "/api/login/**",
-                    "/api/registro/**",
-                    "/*.html",
-                    "/*.ico",
-                    "/favicon.ico",
-                    "/*.json",
-                    "/*.css",
-                    "/*.js",
+                    // Directorios estáticos comunes
+                    "/css/**", 
+                    "/js/**", 
                     "/images/**",
-                    "/css/**",
-                    "/js/**",
-                    "/login.html"
+                    "/*.ico", 
+                    
+                    // Páginas HTML de inicio y autenticación
+                    "/", // Raíz del sitio
+                    "/*.html", // Todos los archivos HTML en la raíz
+                    
+                    // Rutas de API públicas (Login/Registro)
+                    "/api/login/**", 
+                    "/api/registro/**",
+                    "/api/test/publica"
                 ).permitAll()
-
-                // CRÍTICO: Estas rutas deben requerir AUTENTICACIÓN
+                
+                // 2. RUTAS QUE REQUIEREN AUTENTICACIÓN
                 .requestMatchers("/dashboard", "/index", "/api/check").authenticated()
-
-                // Requerir autenticación para el resto de las API
+                
+                // 3. CUALQUIER OTRA RUTA requiere autenticación
                 .anyRequest().authenticated()
-            );
-
-        // Configuraciones adicionales
-        http
-            .csrf(AbstractHttpConfigurer::disable)
+            )
+            
+            // Inicio de las configuraciones de seguridad
+            .csrf(AbstractHttpConfigurer::disable) 
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
             )
-            // Añadir filtro Firebase
-            .addFilterBefore(firebaseTokenFilter, UsernamePasswordAuthenticationFilter.class)
+            // Añadir el filtro de Firebase antes del filtro básico de autenticación
+            .addFilterBefore(firebaseTokenFilter, UsernamePasswordAuthenticationFilter.class) 
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable);
-
+        
         return http.build();
     }
 
+    // Configuración de CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*");
+        config.setAllowCredentials(true); 
+        config.addAllowedOriginPattern("*"); 
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         source.registerCorsConfiguration("/**", config);
