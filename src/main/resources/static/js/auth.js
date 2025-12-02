@@ -1,13 +1,14 @@
 // =================== CONFIGURACIÓN FIREBASE ===================
 const firebaseConfig = {
-    apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
-    authDomain: "scanwatter-1bf04.firebaseapp.com",
-    databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
-    projectId: "scanwatter-1bf04",
-    storageBucket: "scanwatter-1bf04.firebasestorage.app",
-    messagingSenderId: "19246885609",
-    appId: "1:19246885609:web:c50bc7012698ddfcddde78",
-    measurementId: "G-GCR3RHEQQQ"
+  apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
+  authDomain: "scanwatter-1bf04.firebaseapp.com",
+  databaseURL: "https://scanwatter-1bf04-default-rtdb.firebaseio.com",
+  projectId: "scanwatter-1bf04",
+  storageBucket: "scanwatter-1bf04.firebasestorage.app",
+  messagingSenderId: "19246885609",
+  appId: "1:19246885609:web:c50bc7012698ddfcddde78",
+  measurementId: "G-GCR3RHEQQQ"
+
 };
 
 firebase.initializeApp(firebaseConfig);
