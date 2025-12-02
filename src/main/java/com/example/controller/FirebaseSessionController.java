@@ -1,3 +1,5 @@
+// Archivo: com.example.demo.controller.FirebaseSessionController.java
+
 package com.example.demo.controller;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/login")
@@ -26,25 +29,25 @@ public class FirebaseSessionController {
     private static class LoginRequest {
         private String idToken;
 
-        public String getIdToken() {
-            return idToken;
+        public String getIdToken() { 
+            return idToken; 
         }
 
-        public void setIdToken(String idToken) {
-            this.idToken = idToken;
+        public void setIdToken(String idToken) { 
+            this.idToken = idToken; 
         }
     }
 
     /**
      * Endpoint que recibe el ID Token de Firebase y lo valida.
-     * No crea una sesión HTTP, solo confirma la validez del token (Stateless).
      * @param loginRequest Objeto que contiene el token JWT de Firebase.
-     * @return Respuesta HTTP de éxito o error.
+     * @return Respuesta HTTP de éxito o error (siempre en formato JSON).
      */
-    @PostMapping("/firebase")
+    @PostMapping("/firebase") // ⬅️ RUTA CORRECTA: /api/login/firebase
     public ResponseEntity<?> createSession(@RequestBody LoginRequest loginRequest) {
         if (loginRequest == null || loginRequest.getIdToken() == null) {
-            return ResponseEntity.badRequest().body("Token ID is required.");
+            // Error 400 (Bad Request) - Siempre devuelve JSON
+            return ResponseEntity.badRequest().body(Map.of("error", "Token ID is required."));
         }
 
         try {
@@ -52,18 +55,21 @@ public class FirebaseSessionController {
             FirebaseToken decodedToken = firebaseAuth.verifyIdToken(loginRequest.getIdToken());
             String uid = decodedToken.getUid();
             
-            // 2. No se crea la sesión de Spring Security. El frontend ahora usará este token 
-            //    para autenticar TODAS las demás solicitudes mediante un filtro (Token Filter).
-
-            // Retorna un mensaje de éxito para que el frontend sepa que el token es válido
-            return ResponseEntity.ok().body("{\"message\": \"Token validated successfully\", \"uid\": \"" + uid + "\"}");
+            // 2. Retorna JSON de éxito
+            return ResponseEntity.ok().body(Map.of("message", "Token validated successfully", "uid", uid));
 
         } catch (FirebaseAuthException e) {
-            // Error si el token es inválido o expiró
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token: " + e.getMessage());
+            // Error 401 (Unauthorized) - Token inválido o expirado. Siempre devuelve JSON
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+                "error", "Invalid Firebase token",
+                "message", e.getMessage()
+            ));
         } catch (Exception e) {
-            // Error del servidor 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error: " + e.getMessage());
+            // Error 500 (Server error). Siempre devuelve JSON
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "error", "Server error during token validation",
+                "message", e.getMessage()
+            ));
         }
     }
 }

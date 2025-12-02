@@ -1,3 +1,5 @@
+// Archivo: auth.js
+
 // =================== CONFIGURACIÓN FIREBASE ===================
 const firebaseConfig = {
     apiKey: "AIzaSyCaycR8mbrfm7xI4yLH-FoHGtsb7J15VI0",
@@ -58,19 +60,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // --- 🛑 LÓGICA DE MANEJO DE ERRORES CORREGIDA (Lectura Única) ---
                 if (!response.ok) {
+                    // CRÍTICO: Leer el cuerpo SOLO UNA VEZ.
                     const responseText = await response.text();
-                    let errorMsg;
+                    let errorMsg = `Error status: ${response.status}`;
                     
                     try {
+                        // Intenta parsear el JSON que ahora el servidor debe devolver
                         const errorJson = JSON.parse(responseText);
-                        errorMsg = errorJson.message || errorJson.error || `Error status: ${response.status}`;
+                        errorMsg = errorJson.error || errorJson.message || `Error status: ${response.status}`;
                     } catch (e) {
-                        errorMsg = responseText || `Error del servidor con estado ${response.status}`;
-                        if (errorMsg.includes("Invalid to") || response.status === 401) {
+                        // Si no es JSON (es texto plano o HTML), usa el texto plano.
+                        errorMsg = responseText.substring(0, 100) + "..."; // Recortar texto
+                        if (response.status === 401) {
                             errorMsg = "Token de Firebase Inválido o Expirado. Por favor, inicia sesión de nuevo.";
                         }
                     }
-                    throw new Error(`Fallo al validar token: ${errorMsg}`);
+                    // Lanza el error capturado
+                    throw new Error(`Fallo al crear sesión: ${errorMsg}`);
                 }
                 // --- FIN DE LA LÓGICA DE MANEJO DE ERRORES ---
                 
@@ -109,6 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 window.location.href = "login.html";
 
             } catch (error) {
+                // El error 403 (Clave API) se captura aquí
                 alert("Error al registrar usuario: " + error.message);
                 console.error("Error de registro:", error);
             }
