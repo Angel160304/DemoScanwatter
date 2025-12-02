@@ -1,5 +1,3 @@
-// Archivo: com.example.demo.config.SecurityConfig.java
-
 package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
@@ -8,11 +6,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+
+// 🛑 Importaciones para CORS
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 
 @Configuration
@@ -32,33 +31,36 @@ public class SecurityConfig {
             // 2. Aplicar la configuración de CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             
-            // 3. 🛑 CRÍTICO DE PRUEBA: Permitir TODAS las solicitudes
+            // 3. Definir reglas de autorización (Reglas normales)
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll() // ⬅️ ¡TODO PERMITIDO PARA DIAGNOSTICAR EL 403!
+                // Permitir acceso sin autenticar a la API de login y a recursos estáticos
+                .requestMatchers("/api/login/**", "/login.html", "/css/**", "/js/**", "/favicon.ico").permitAll()
+                // Requerir autenticación para cualquier otra solicitud
+                .anyRequest().authenticated()
             )
-            // 4. Asegurar que Spring use el contexto de sesión estándar
-            .securityContext((securityContext) -> securityContext
-                .securityContextRepository(new HttpSessionSecurityContextRepository())
-            )
-            // Deshabilitar login/basic authentication
+            // Deshabilitar login basado en formulario y autenticación básica
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable);
-
 
         return http.build();
     }
 
 
     /**
-     * Define la configuración de CORS abierta.
+     * Define la configuración de CORS abierta para Render.
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         
+        // Permite el intercambio de cookies/sesiones (CRÍTICO)
         config.setAllowCredentials(true); 
+        
+        // Permitir todos los orígenes
         config.addAllowedOriginPattern("*"); 
+        
+        // Permitir todos los métodos y cabeceras
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         

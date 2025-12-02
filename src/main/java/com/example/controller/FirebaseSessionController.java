@@ -1,70 +1,100 @@
-// Archivo: com.example.controller.FirebaseSessionController.java
-// Asegúrate de que las importaciones jakarta.servlet sean correctas para tu versión de Spring Boot.
-
-package com.example.controller;
+package com.example.demo.controller;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-// import org.springframework.security.core.userdetails.User; // ⬅️ IMPORTACIÓN ELIMINADA (Ya no se necesita)
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.beans.factory.annotation.Autowired; 
-import org.springframework.security.core.Authentication; // ⬅️ Importación requerida para la interfaz Authentication
-
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+
+import java.util.Collections;
 
 @RestController
 @RequestMapping("/api/login")
 public class FirebaseSessionController {
 
-    @Autowired 
-    private FirebaseAuth firebaseAuth; 
+    private final FirebaseAuth firebaseAuth;
 
-    @PostMapping("/firebase")
-    public ResponseEntity<String> createSession(@RequestBody TokenRequest tokenRequest, HttpServletRequest request) {
-        String idToken = tokenRequest.getToken();
-        
-        if (idToken == null || idToken.isEmpty()) {
-            return ResponseEntity.badRequest().body("Token is required");
+    @Autowired
+    public FirebaseSessionController(FirebaseAuth firebaseAuth) {
+        this.firebaseAuth = firebaseAuth;
+    }
+
+    // Clase interna simple para manejar la entrada del JSON
+    private static class LoginRequest {
+        private String idToken;
+
+        public String getIdToken() {
+            return idToken;
         }
-        
-        try {
-            // 1. Validar el token con el Bean inyectado
-            FirebaseToken firebaseToken = firebaseAuth.verifyIdToken(idToken); 
-            String uid = firebaseToken.getUid();
-            
-            // 🛑 CRÍTICO: 2. Crear el objeto de autenticación de Spring Security (Forma Simplificada)
-            Authentication authentication = new UsernamePasswordAuthenticationToken(
-                uid, // Principal: el UID de Firebase
-                null, // Credenciales: null
-                java.util.Collections.emptyList() // Autoridades/Roles
-            );
 
-            // 3. Crear la Sesión de Spring Security y guardar el contexto
-            HttpSession session = request.getSession(true);
-            
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, 
-                                 SecurityContextHolder.getContext());
-
-            return ResponseEntity.ok("Session created for UID: " + uid);
-
-        } catch (Exception e) {
-            System.err.println("Firebase Auth Error: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token is invalid or expired: " + e.getMessage());
+        public void setIdToken(String idToken) {
+            this.idToken = idToken;
         }
     }
 
-    // Clase auxiliar para recibir el JSON del frontend
-    public static class TokenRequest {
-        private String token;
-        public String getToken() { return token; }
-        public void setToken(String token) { this.token = token; }
+    /**
+     * Endpoint que recibe el ID Token de Firebase y crea la sesión de Spring Security.
+     * @param loginRequest Objeto que contiene el token JWT de Firebase.
+     * @param request Objeto HttpServletRequest para manejar la sesión.
+     * @return Respuesta HTTP de éxito o error.
+     */
+    @PostMapping("/firebase")
+    public ResponseEntity<?> createSession(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
+        if (loginRequest == null || loginRequest.getIdToken() == null) {
+            return ResponseEntity.badRequest().body("Token ID is required.");
+        }
+
+        try {
+            // 1. Validar el token JWT de Firebase
+            FirebaseToken decodedToken = firebaseAuth.verifyIdToken(loginRequest.getIdToken());
+            String uid = decodedToken.getUid();
+
+            // 2. 🛑 CRÍTICO: Invalidar cualquier sesión HTTP previa para evitar conflictos de seguridad (403).
+            HttpSession session = request.getSession(false); 
+            if (session != null) {
+                session.invalidate(); 
+            }
+
+            // 3. Crear el nuevo contexto de seguridad
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                uid, 
+                null, // No se necesita la contraseña aquí
+                Collections.emptyList() // Asignar roles vacíos por defecto
+            );
+            
+            // 4. Establecer el contexto de seguridad actual
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // 5. Crear la nueva sesión HTTP y guardar el contexto de seguridad
+            HttpSession newSession = request.getSession(true);
+            newSession.setAttribute(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, 
+                SecurityContextHolder.getContext()
+            );
+
+            // Opcional: Establecer un tiempo de vida (ej: 1 hora)
+            newSession.setMaxInactiveInterval(60 * 60); 
+
+            return ResponseEntity.ok().body("{\"message\": \"Session established successfully\", \"uid\": \"" + uid + "\"}");
+
+        } catch (FirebaseAuthException e) {
+            // Error si el token es inválido o expiró
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token: " + e.getMessage());
+        } catch (Exception e) {
+            // Error del servidor (ej: si falla la inyección de FirebaseAuth)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error: " + e.getMessage());
+        }
     }
 }
