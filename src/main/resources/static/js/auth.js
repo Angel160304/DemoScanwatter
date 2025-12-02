@@ -20,9 +20,8 @@ function validarEmail(email) {
 document.addEventListener("DOMContentLoaded", () => {
 
     if (document.querySelector("#loginForm")) {
-        // Asegúrate de limpiar también el token JWT al inicio de la página de login
         localStorage.removeItem("usuario");
-        localStorage.removeItem("firebaseIdToken"); // Limpiar token al cargar login
+        localStorage.removeItem("firebaseIdToken");
     }
 
     // --------------- LOGIN ------------------
@@ -39,14 +38,14 @@ document.addEventListener("DOMContentLoaded", () => {
             if (pass.length < 6) return alert("La contraseña es demasiado corta");
 
             try {
-                // 1. 🔑 Autenticación REAL con Firebase
+                // 1. Autenticación REAL con Firebase
                 const userCredential = await firebase.auth().signInWithEmailAndPassword(email, pass);
                 const user = userCredential.user;
 
                 // 2. Obtener el ID Token (JWT)
                 const token = await user.getIdToken();
 
-                // 3. 🌐 Llamada al BACKEND (Validación Stateless)
+                // 3. Llamada al BACKEND (Validación Stateless)
                 const backendUrl = 'https://demoscanwatter.onrender.com/api/login/firebase';
                 
                 const response = await fetch(backendUrl, {
@@ -54,36 +53,38 @@ document.addEventListener("DOMContentLoaded", () => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    // ✅ CORREGIDO: Usamos 'idToken' para que coincida con el backend de Spring Boot
                     body: JSON.stringify({ idToken: token }), 
                 });
 
-                // --- 🛑 LÓGICA DE MANEJO DE ERRORES ROBUSTA (JSON o Texto) ---
+                // --- 🛑 LÓGICA DE MANEJO DE ERRORES CORREGIDA (Lectura Única) ---
                 if (!response.ok) {
+                    
+                    // Leer el cuerpo de la respuesta UNA SOLA VEZ como texto
+                    const responseText = await response.text();
                     let errorMsg;
+                    
                     try {
-                        // Intenta leer el cuerpo como JSON (para errores 400/500 estructurados)
-                        const errorJson = await response.json();
+                        // Intenta parsear el texto leído como JSON
+                        const errorJson = JSON.parse(responseText);
                         errorMsg = errorJson.message || errorJson.error || `Error status: ${response.status}`;
                     } catch (e) {
-                        // Si falla la lectura de JSON (ej: respuesta 401/403 con texto plano o errores de Cloudflare)
-                        const errorText = await response.text();
-                        errorMsg = errorText || `Error del servidor con estado ${response.status}`;
-
-                        // Manejo de errores específicos del backend
-                        if (errorMsg.includes("Token ID is required")) {
-                            errorMsg = "Fallo de validación: El token no fue enviado correctamente.";
+                        // Si falla el parseo, usar el texto plano
+                        errorMsg = responseText || `Error del servidor con estado ${response.status}`;
+                        
+                        // Si el error es el 401 no estructurado de Firebase/Spring
+                        if (errorMsg.includes("Invalid to") || response.status === 401) {
+                            errorMsg = "Token de Firebase Inválido o Expirado. Por favor, inicia sesión de nuevo.";
                         }
                     }
 
-                    // Lanzar el error para que sea capturado por el 'catch'
+                    // Lanzar el error
                     throw new Error(`Fallo al validar token: ${errorMsg}`);
                 }
                 // --- FIN DE LA LÓGICA DE MANEJO DE ERRORES ---
                 
-                // 4. ✅ Éxito: Almacenar el token y redirigir
+                // 4. Éxito: Almacenar el token y redirigir
                 localStorage.setItem("usuario", email);
-                localStorage.setItem("firebaseIdToken", token); // Guardar el token para futuras peticiones
+                localStorage.setItem("firebaseIdToken", token); 
                 
                 window.location.href = "/dashboard"; 
 
@@ -104,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // =================== CERRAR SESIÓN ===================
 function logout() {
     localStorage.removeItem("usuario");
-    localStorage.removeItem("firebaseIdToken"); // Borrar el token al cerrar sesión
+    localStorage.removeItem("firebaseIdToken");
     firebase.auth().signOut().then(() => {
         window.location.href = "login.html"; 
     });
