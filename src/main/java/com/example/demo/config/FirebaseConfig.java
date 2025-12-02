@@ -31,7 +31,7 @@ public class FirebaseConfig {
             
             FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                // ❌ SE ELIMINA: .setHttpTimeout(30000) (Causaba el error de compilación)
+                // ❌ SE ELIMINA: setHttpTimeout(30000) (Causaba el error de compilación)
                 .build();
             
             if (FirebaseApp.getApps().isEmpty()) {
