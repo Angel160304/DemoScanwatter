@@ -28,37 +28,6 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  // 🔹 Limpia sesión SOLO si venimos desde login
-  if (document.referrer.includes('/login')) {
-    localStorage.removeItem("usuario");
-    localStorage.removeItem("userToken");
-  }
-
-  // 🔥 Configuración dinámica del menú según sesión
-  auth.onAuthStateChanged((user) => {
-    const dashboardLink = document.querySelector('a[href="/dashboard"]');
-    const logoutLink = document.querySelector('a[onclick="logout()"]');
-
-    if (!dashboardLink || !logoutLink) return;
-
-    if (!user) {
-      // Si no hay usuario → manda a login
-      dashboardLink.onclick = (e) => {
-        e.preventDefault();
-        window.location.href = "/login.html";
-      };
-
-      // Oculta cerrar sesión
-      logoutLink.style.display = "none";
-    } else {
-      // Si hay sesión → abre dashboard directo
-      dashboardLink.onclick = () => window.location.href = "/dashboard";
-      
-      // Muestra cerrar sesión
-      logoutLink.style.display = "block";
-    }
-  });
-
   // 🔹 Cerrar sesión
   function logout() {
     localStorage.removeItem("usuario");
@@ -76,7 +45,7 @@
     <li><a href="#inicio">Inicio</a></li>
     <li><a href="#funciona">Cómo Funciona</a></li>
     <li><a href="#beneficios">Beneficios</a></li>
-    <li><a href="/dashboard">Dashboard</a></li>
+    <li><a href="/dashboard.html">Dashboard</a></li>
     <li><a href="#" onclick="logout()">Cerrar Sesión</a></li>
   </ul>
 </nav>
@@ -162,5 +131,6 @@
     document.getElementById(id).scrollIntoView({ behavior: "smooth" });
   }
 </script>
+
 </body>
 </html>
