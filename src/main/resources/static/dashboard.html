@@ -60,8 +60,8 @@
   <script>
     // =================== CERRAR SESIÓN ===================
     function logout() {
-      firebase.auth().signOut();
-    }
+    window.location.href = "login.html";
+  }
 
     // =================== GRÁFICA ===================
     const ctx = document.getElementById("chart").getContext("2d");
