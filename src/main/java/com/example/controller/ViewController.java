@@ -10,12 +10,4 @@ public class ViewController {
     public String rootRedirect() {
         return "redirect:/index.html"; // Página pública
     }
-
-    // ❌ NO MAPEES login ni registro
-    // Están en /static y se sirven automáticamente
-
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        return "dashboard"; // dashboard.html en templates
-    }
 }

@@ -43,11 +43,7 @@
 
   <script>
 
-    // =================== VERIFICAR SESIÓN ===================
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) window.location = "index.html";
-    });
-
+    // =================== CERRAR SESIÓN (opcional) ===================
     function logout() {
       firebase.auth().signOut();
     }
@@ -74,7 +70,7 @@
 
       const ref = firebase.database().ref(`consumo/${day}`);
 
-      ref.off(); // limpiar escuchas anteriores
+      ref.off();
 
       ref.on("value", snap => {
         const data = snap.val();
@@ -87,7 +83,6 @@
         }
 
         const hours = Object.keys(data).sort((a,b) => Number(a) - Number(b));
-
         const litros = hours.map(h => data[h].litros ?? 0);
 
         chart.data.labels = hours.map(h => `${h}:00`);
@@ -97,7 +92,7 @@
       });
     }
 
-    // Auto-seleccionar fecha actual
+    // Fecha actual por defecto
     document.getElementById("datePicker").valueAsDate = new Date();
     loadDay();
   </script>
